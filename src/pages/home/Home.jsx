@@ -7,6 +7,10 @@ import CompanyServices from "../../components/display/free/CompanyServices";
 import LimitedOffer from "../../components/display/free/LimitedOffer";
 import BestSellingItems from "../../components/display/free/BestSellingItems";
 import ProductSection from "../../components/display/GroupItems/ProductSection";
+import CategoriesSection from "../../components/display/free/CategoriesSection";
+import CustomerReviewsSlider from "../../components/action/CustomerReviewsSlider";
+import LatestPosts from "../../components/display/free/LatestPosts";
+
 
 
 export default function Home() {
@@ -17,6 +21,9 @@ export default function Home() {
       <LimitedOffer />
       <BestSellingItems />
       <ProductSection />
+      <CategoriesSection />
+      <CustomerReviewsSlider />
+      <LatestPosts />
 
       <Box sx={{ flexGrow: 1, padding: { xs: '20px', md: '30px' }, }}>
         <Typography variant="h6" noWrap component="div"
