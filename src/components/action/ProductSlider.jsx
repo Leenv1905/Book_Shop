@@ -3,6 +3,8 @@ import Slider from 'react-slick';
 import ProductCard from '../display/free/ProductCard';
 import { styled } from '@mui/system';
 import { ArrowForward, ArrowBack } from '@mui/icons-material';
+import { Box } from "@mui/material";
+
 
 // Đảm bảo slider container có chiều rộng 100% và căn chỉnh hợp lý
 const SliderContainer = styled('div')({
@@ -59,8 +61,8 @@ const SliderContainer = styled('div')({
 // Đoạn này ko cần thiết hoặc có thể thay bằng Box từ Material UI
 const ProductCardWrapper = styled('div')({
   display: 'flex',
-  justifyContent: 'center', // Căn giữa mỗi card
-  alignItems: 'center', // Căn giữa mỗi card
+  justifyContent: 'center', // Căn giữa mỗi card theo chiều ngang
+  alignItems: 'center', // Căn giữa mỗi card theo chiều dọc
   flexDirection: 'column', // Đảm bảo các phần tử card sắp xếp theo cột
   width: '100%', // Đảm bảo card chiếm 100% chiều rộng của slide
 //   maxWidth: '224px', // Đặt chiều rộng tối đa cho card
@@ -79,10 +81,10 @@ const ProductCardWrapper = styled('div')({
 const ProductSlider = ({ products }) => {
   const settings = {
     maxHeight: 420,
-    dots: false,
-    infinite: true,
+    dots: false, // Ẩn chấm tròn
+    infinite: true, // Lặp vô hạn
     speed: 500,
-    slidesToShow: 4,
+    slidesToShow: 4, // SỐ LƯỢNG CARD ĐƯỢC HIỂN THỊ
     slidesToScroll: 1,
     nextArrow: (
       <button className="slick-next">
@@ -95,8 +97,8 @@ const ProductSlider = ({ products }) => {
       </button>
     ),
     responsive: [
-      { breakpoint: 1268, settings: { slidesToShow: 3 } },
-      { breakpoint: 1024, settings: { slidesToShow: 2 } },
+      { breakpoint: 1268, settings: { slidesToShow: 3 } },  // SỐ LƯỢNG CARD ĐƯỢC HIỂN THỊ
+      { breakpoint: 1024, settings: { slidesToShow: 2 } },  // KHI KÍCH THƯỚC MÀN HÌNH XUỐNG DƯỚI 1024PX
       { breakpoint: 700, settings: { slidesToShow: 1 } },
       { breakpoint: 480, settings: { slidesToShow: 1 } },
     ],

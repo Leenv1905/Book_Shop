@@ -22,7 +22,9 @@ const PostCard = ({ image, category, title, description, postLink, categoryLink 
           {category}
         </Link>
         <Typography variant="h6" component="h4" sx={{ mt: 1, mb: 1, fontWeight: "bold" }}>
-          <Link href={postLink} underline="hover" color="text.primary">
+          <Link href={postLink} underline="none" color="text.primary"
+          sx={{ '&:hover': { color: '#F86D72', textDecoration: 'none', } }}
+          >
             {title}
           </Link>
         </Typography>

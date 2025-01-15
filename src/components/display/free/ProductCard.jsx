@@ -1,6 +1,8 @@
 import React from 'react';
 import { Card, CardMedia, CardContent, Typography, Box } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star'; // Icon cho sao
+import CardActions from '../../action/CardActions';
+
 
 const ProductCard = ({ product }) => {
   return (
@@ -16,8 +18,28 @@ const ProductCard = ({ product }) => {
         height: 420, // Kích thước chiều cao của card
         display: 'flex',
         flexDirection: 'column',
+        // Hiển thị CardActions khi hover
+        overflow: 'hidden',
+        '&:hover .card-actions': {
+          opacity: '1 !important', // Hiển thị CardActions khi hover
+        },
       }}
     >
+         {/* Các nút hành động CardActions */}
+         <CardActions
+         className="card-actions" // Đặt tên class để truyền vào CSS selectors
+        sx={{
+          position: 'absolute',
+          top: '93%',
+          left: '75%',
+          transform: 'translate(-50%, -50%)', // Căn giữa
+          opacity: 0, // Ẩn mặc định
+          transition: 'opacity 0.3s ease', // Hiệu ứng mượt mà
+          zIndex: 2,
+        }}
+      />
+
+       {/* Hiển thị giảm giá */}
       {product.discount && (
         <Box
           sx={{

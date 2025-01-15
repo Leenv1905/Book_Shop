@@ -1,7 +1,7 @@
 // components/ProductGroup.jsx
 import React from "react";
 import { Box, Typography, Divider } from "@mui/material";
-import MiniProductCard from "./MiniProductCard";
+import MiniProductCard from "../free/MiniProductCard";
 
 const ProductGroup = ({ title, products }) => {
   return (
