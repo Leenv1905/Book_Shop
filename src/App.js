@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 import LayoutHome from "./layouts/home/LayoutHome";
 import Home from "./pages/home/Home";
 import About from "./pages/home/About";
+import ShopPage from "./pages/home/ShopPage";
+
 
 // ĐOẠN NÀY LÀ TEST
 
@@ -20,6 +22,8 @@ function App() {
           <Route path="/" element={<LayoutHome />}>
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
+            <Route path="shop" element={<ShopPage />} />
+
           </Route>
 
 
