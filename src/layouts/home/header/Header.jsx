@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -6,7 +7,6 @@ import {
   Button,
   Container,
   Box,
-  Link,
   useMediaQuery,
   Drawer,
   IconButton,
@@ -51,12 +51,13 @@ const Header = () => {
           {/* Links for Desktop */}
           {!isMobile && (
             <Box sx={{ flexGrow: 1, textAlign: "center" }}>
-              <CustomButton uppercase>Home</CustomButton>
-              <CustomButton uppercase>About</CustomButton>
-              <CustomButton uppercase>Shop</CustomButton>
-              <CustomButton uppercase>Blogs</CustomButton>
-              <CustomButton uppercase>Pages</CustomButton>
-              <CustomButton uppercase>Contact</CustomButton>
+<CustomButton component={Link} to="/" uppercase>Home</CustomButton>
+<CustomButton component={Link} to="/about" uppercase>About</CustomButton>
+<CustomButton component={Link} to="/shop" uppercase>Shop</CustomButton>
+<CustomButton component={Link} to="/blogs" uppercase>Blogs</CustomButton>
+<CustomButton component={Link} to="/pages" uppercase>Pages</CustomButton>
+<CustomButton component={Link} to="/contact" uppercase>Contact</CustomButton>
+
             </Box>
           )}
           {!isMobile && <UserItems />} {/* UserItems hiển thị ngoài cùng bên phải trên Desktop */}
@@ -97,12 +98,13 @@ const Header = () => {
             alignItems: 'center',
             mt: 2, // Khoảng cách trên cùng
             }}>
-          <CustomButton sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Home</CustomButton>
-          <CustomButton sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>About</CustomButton>
-          <CustomButton sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Shop</CustomButton>
-          <CustomButton sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Blogs</CustomButton>
-          <CustomButton sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Pages</CustomButton>
-          <CustomButton sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Contact</CustomButton>
+<CustomButton component={Link} to="/" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Home</CustomButton>
+<CustomButton component={Link} to="/about" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>About</CustomButton>
+<CustomButton component={Link} to="/shop" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Shop</CustomButton>
+<CustomButton component={Link} to="/blogs" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Blogs</CustomButton>
+<CustomButton component={Link} to="/pages" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Pages</CustomButton>
+<CustomButton component={Link} to="/contact" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Contact</CustomButton>
+
           {/* <CustomButton>Extra</CustomButton>  */}
           {/* Nút thứ 7 - khi này sẽ là 1 cột 4, 1 cột 3 */}
         </Box>
