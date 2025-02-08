@@ -9,13 +9,18 @@ const ProductCard = ({ product }) => {
     <Card
       sx={{
         position: 'relative',
-        p: 2,
+        pt: 2, // Padding top
+        pr: 2, // Padding right
+        pb: 0.5, // Padding bottom
+        pl: 2, // Padding left
         borderRadius: 3,
         boxShadow: "none", // Tắt bóng đổ
         border: "1px solid #ddd", // (Tuỳ chọn) Thêm viền nhạt để phân biệt
         bgcolor: 'background.paper',
-        width: 220,  // Kích thước chiều rộng của card
-        height: 420, // Kích thước chiều cao của card
+        // width: 220,  // Kích thước chiều rộng của card
+        width: "100%", // Để như này tránh card đè lên nhau
+        // height: 420, // Kích thước chiều cao của card
+        height: "auto", // Để chiều cao tự điều chỉnh
         display: 'flex',
         flexDirection: 'column',
         // Hiển thị CardActions khi hover
@@ -30,7 +35,7 @@ const ProductCard = ({ product }) => {
          className="card-actions" // Đặt tên class để truyền vào CSS selectors
         sx={{
           position: 'absolute',
-          top: '93%',
+          top: '90%',
           left: '75%',
           transform: 'translate(-50%, -50%)', // Căn giữa
           opacity: 0, // Ẩn mặc định
@@ -79,22 +84,22 @@ const ProductCard = ({ product }) => {
           {product.name}
         </Typography>
 
-{/* TÁC GIẢ VÀ ĐÁNH GIÁ CÓ 2 CÁCH TRÌNH BÀY, CHIA 2 DÒNG HOẶC GỘP LÀM 1 */}
-        {/* <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {product.author}
-        </Typography>
+                {/* TÁC GIẢ VÀ ĐÁNH GIÁ CÓ 2 CÁCH TRÌNH BÀY, CHIA 2 DÒNG HOẶC GỘP LÀM 1 */}
+                        {/* <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                          {product.author}
+                        </Typography>
 
-        <Box 
-        sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            mb: 1, 
-            // justifyContent: 'center',  
-            }}>
-          {Array.from({ length: product.rating }, (_, index) => (
-            <StarIcon key={index} sx={{ color: 'gold', fontSize: 16 }} />
-          ))}
-        </Box> */}
+                        <Box 
+                        sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            mb: 1, 
+                            // justifyContent: 'center',  
+                            }}>
+                          {Array.from({ length: product.rating }, (_, index) => (
+                            <StarIcon key={index} sx={{ color: 'gold', fontSize: 16 }} />
+                          ))}
+                        </Box> */}
 
         {/* Tác giả và Rating */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -117,7 +122,7 @@ const ProductCard = ({ product }) => {
           </Box>
         </Box>
 
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F86D72', }}>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F86D72', mt: 1 }}>
           $ {product.price}
         </Typography>
       </CardContent>

@@ -64,9 +64,10 @@ const ProductCardWrapper = styled('div')({
   justifyContent: 'center', // Căn giữa mỗi card theo chiều ngang
   alignItems: 'center', // Căn giữa mỗi card theo chiều dọc
   flexDirection: 'column', // Đảm bảo các phần tử card sắp xếp theo cột
-  width: '100%', // Đảm bảo card chiếm 100% chiều rộng của slide
-//   maxWidth: '224px', // Đặt chiều rộng tối đa cho card
+  // width: '100%', // Đảm bảo card chiếm 100% chiều rộng của slide
+  maxWidth: '220px', // Đặt chiều rộng tối đa cho card
   height: 'auto', // Cho phép chiều cao tự động thay đổi theo nội dung
+  // maxHeight: '420px', // Đảm bảo chiều cao tối đa cho card
 //   '@media (max-width: 1224px)': {
 //     maxWidth: '200px', // Giảm chiều rộng card khi màn hình nhỏ hơn 1024px
 //   },

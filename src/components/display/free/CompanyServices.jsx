@@ -56,7 +56,7 @@ const CompanyServices = () => {
   ];
 
   return (
-    <section id="company-services" style={{ padding: "64px 0", paddingBottom: 0 }}>
+    <section id="company-services" style={{ padding: "64px 0", paddingBottom: 5 }}>
       <Box display="flex" justifyContent="center">
         <Grid container spacing={4} justifyContent="center">
           {services.map((service, index) => (
