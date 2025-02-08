@@ -4,18 +4,36 @@ import ProductList from "../../components/display/free/ProductList";
 import Sidebar from "../../components/display/free/Sidebar";
 import PaginationComponent from '../../components/display/free/PaginationComponent'; // Component phân trang
 import ProductFilter from '../../components/display/free/ProductFilter'; // Component lọc sản phẩm
+import BreadcrumbsComponent from '../../components/display/free/BreadcrumbsComponent'; // Component Breadcrumbs
+
 
 const ShopPage = () => {
   return (
-    <Container sx={{ paddingY: 4 }}>
+    <>
+    <BreadcrumbsComponent         
+        title="Shop"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Shop" },
+          { label: "Shop" } // Không có href → là trang hiện tại
+        ]}/>
+    {/* // <Container sx={{ paddingY: 4 }}> */}
+    <Container
+    maxWidth="90%" // Định giới hạn chiều rộng tối đa
+    sx={{
+      paddingY: 4,
+      width: { xs: "95%", md: "90%" }, // 95% khi màn hình nhỏ, 100% khi màn hình lớn
+      marginX: "auto", // Căn giữa trang
+    }}
+  >
       <Grid container spacing={4}>
         {/* Sidebar */}
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={2}>
           <Sidebar />
         </Grid>
 
         {/* Main Content */}
-        <Grid item xs={12} md={9}>
+        <Grid item xs={12} md={10}>
           {/* Product Filter */}
           <ProductFilter />
 
@@ -27,6 +45,7 @@ const ShopPage = () => {
         </Grid>
       </Grid>
     </Container>
+    </>
   );
 };
 
