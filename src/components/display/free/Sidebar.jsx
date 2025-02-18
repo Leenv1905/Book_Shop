@@ -1,3 +1,5 @@
+// COMPONENT NÀY LÀ BỘ LỌC TÌM KIẾM CHO TRANG SHOP
+
 import React, { useState } from "react";
 import { 
   Box, Typography, List, ListItem, ListItemText, 
