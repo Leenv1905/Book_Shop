@@ -54,7 +54,7 @@ const Header = () => {
 <CustomButton component={Link} to="/" uppercase>Home</CustomButton>
 <CustomButton component={Link} to="/about" uppercase>About</CustomButton>
 <CustomButton component={Link} to="/shop" uppercase>Shop</CustomButton>
-<CustomButton component={Link} to="/blogs" uppercase>Blogs</CustomButton>
+<CustomButton component={Link} to="/blog" uppercase>Blogs</CustomButton>
 <CustomButton component={Link} to="/pages" uppercase>Pages</CustomButton>
 <CustomButton component={Link} to="/contact" uppercase>Contact</CustomButton>
 
@@ -101,7 +101,7 @@ const Header = () => {
 <CustomButton component={Link} to="/" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Home</CustomButton>
 <CustomButton component={Link} to="/about" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>About</CustomButton>
 <CustomButton component={Link} to="/shop" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Shop</CustomButton>
-<CustomButton component={Link} to="/blogs" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Blogs</CustomButton>
+<CustomButton component={Link} to="/blog" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Blogs</CustomButton>
 <CustomButton component={Link} to="/pages" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Pages</CustomButton>
 <CustomButton component={Link} to="/contact" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Contact</CustomButton>
 
