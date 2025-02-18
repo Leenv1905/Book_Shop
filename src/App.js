@@ -9,6 +9,9 @@ import LayoutHome from "./layouts/home/LayoutHome";
 import Home from "./pages/home/Home";
 import About from "./pages/home/About";
 import ShopPage from "./pages/home/ShopPage";
+import BlogPage from "./pages/home/BlogPage";
+import ContactPage from "./pages/home/ContactPage";
+
 
 
 // ĐOẠN NÀY LÀ TEST
@@ -23,6 +26,9 @@ function App() {
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
             <Route path="shop" element={<ShopPage />} />
+            <Route path="blog" element={<BlogPage />} />
+            <Route path="contact" element={<ContactPage />} />
+
 
           </Route>
 
