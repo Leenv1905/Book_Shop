@@ -11,7 +11,7 @@ const LatestPosts = () => {
       title: "10 Must-Read Books of the Year: Our Top Picks!",
       description:
         "Dive into the world of cutting-edge technology with our latest blog post, where we highlight five essential gadgets.",
-      postLink: "single-post.html",
+      postLink: "/singlepost",
       categoryLink: "blog.html",
     },
     {
@@ -20,7 +20,7 @@ const LatestPosts = () => {
       title: "The Fascinating Realm of Science Fiction",
       description:
         "Explore the intersection of technology and sustainability in our latest blog post. Learn about the innovative...",
-      postLink: "single-post.html",
+      postLink: "/singlepost",
       categoryLink: "blog.html",
     },
     {
@@ -29,7 +29,7 @@ const LatestPosts = () => {
       title: "Finding Love in the Pages of a Book",
       description:
         "Stay ahead of the curve with our insightful look into the rapidly evolving landscape of wearable technology.",
-      postLink: "single-post.html",
+      postLink: "/singlepost",
       categoryLink: "blog.html",
     },
     {
@@ -38,7 +38,7 @@ const LatestPosts = () => {
       title: "Reading for Mental Health: How Books Can Heal and Inspire",
       description:
         "In today's remote work environment, productivity is key. Discover the top apps and tools that can help you stay productive.",
-      postLink: "single-post.html",
+      postLink: "/singlepost",
       categoryLink: "blog.html",
     },
   ];

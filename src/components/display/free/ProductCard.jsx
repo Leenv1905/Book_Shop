@@ -2,9 +2,19 @@ import React from 'react';
 import { Card, CardMedia, CardContent, Typography, Box } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star'; // Icon cho sao
 import CardActions from '../../action/CardActions';
+import { useNavigate } from 'react-router-dom';
 
 
 const ProductCard = ({ product }) => {
+
+  const navigate = useNavigate(); // Khởi tạo điều hướng
+
+  // Hàm xử lý điều hướng đến trang chi tiết sản phẩm
+  const handleNavigate = () => {
+    // navigate(`/productdetail/${product.id}`); // Điều hướng đến trang chi tiết sản phẩm theo ID
+    navigate(`/productdetail`);
+  };
+
   return (
     <Card
       sx={{
@@ -63,16 +73,19 @@ const ProductCard = ({ product }) => {
         </Box>
       )}
 
+{/* Ảnh sản phẩm */}
       <CardMedia
         component="img"
         // height="350"
         height="auto" // Chiều cao của ảnh
         image={product.image}
         alt={product.name}
-        sx={{ borderRadius: 2, boxShadow: 2 }}
+        sx={{ borderRadius: 2, boxShadow: 2, cursor: "pointer" }} // Hiệu ứng khi di chuột
+        onClick={handleNavigate} // Khi bấm vào ảnh → điều hướng
       />
       
       <CardContent sx={{ flex: 1 }}>
+         {/* Tên sản phẩm */}
         <Typography variant="h7" component="div" 
         sx={{ 
             fontWeight: 'bold', 
@@ -80,7 +93,11 @@ const ProductCard = ({ product }) => {
             whiteSpace: 'nowrap', // Không xuống dòng
             overflow: 'hidden',  // Ẩn phần chữ tràn
             textOverflow: 'ellipsis', // Hiển thị dấu "..."
-            }}>
+            cursor: "pointer",
+            '&:hover': { color: "#F86D72" } // Hiệu ứng khi di chuột
+            }}
+            onClick={handleNavigate} // Khi bấm vào tên → điều hướng
+            >
           {product.name}
         </Typography>
 

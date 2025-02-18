@@ -67,7 +67,7 @@
 
 import React from 'react';
 import { Grid, Box } from '@mui/material';
-import ProductCard from './ProductCard'; 
+import ProductCard from '../free/ProductCard'; 
 import { Height } from '@mui/icons-material';
 
 const ProductList = () => {

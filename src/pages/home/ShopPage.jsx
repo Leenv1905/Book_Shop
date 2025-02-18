@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid, Container } from "@mui/material";
-import ProductList from "../../components/display/free/ProductList";
+import ProductList from "../../components/display/GroupItems/ProductList";
 import Sidebar from "../../components/display/free/Sidebar";
 import PaginationComponent from '../../components/display/free/PaginationComponent'; // Component phân trang
 import ProductFilter from '../../components/display/free/ProductFilter'; // Component lọc sản phẩm

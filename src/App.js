@@ -11,6 +11,8 @@ import About from "./pages/home/About";
 import ShopPage from "./pages/home/ShopPage";
 import BlogPage from "./pages/home/BlogPage";
 import ContactPage from "./pages/home/ContactPage";
+import SinglePost from "./pages/home/SinglePost";
+import ProductDetail from "./pages/home/ProductDetail";
 
 
 
@@ -28,6 +30,8 @@ function App() {
             <Route path="shop" element={<ShopPage />} />
             <Route path="blog" element={<BlogPage />} />
             <Route path="contact" element={<ContactPage />} />
+            <Route path="singlepost" element={<SinglePost />} />
+            <Route path="productdetail" element={<ProductDetail />} />
 
 
           </Route>

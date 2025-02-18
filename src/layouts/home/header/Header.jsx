@@ -20,7 +20,7 @@ const Logo = styled("img")({
   height: "50px",
 });
 
-const CustomButton = styled(Button)(({ uppercase })=>({
+const CustomButton = styled(Button)(({ uppercase }) => ({
   textTransform: uppercase ? "uppercase" : "none", // Chuyển đổi chữ hoa chữ thường
   margin: "0 10px",  // Khoảng cách giữa các nút
   fontSize: "18px",
@@ -44,19 +44,19 @@ const Header = () => {
   return (
     <>
       {/* Header */}
-      <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "none", padding: '10px 0' , color: "#272727" }}>
+      <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "none", padding: '10px 0', color: "#272727" }}>
         <Toolbar>
           {/* Logo */}
           <Logo src="/demo/images/main-logo.png" alt="Logo" />
           {/* Links for Desktop */}
           {!isMobile && (
             <Box sx={{ flexGrow: 1, textAlign: "center" }}>
-<CustomButton component={Link} to="/" uppercase>Home</CustomButton>
-<CustomButton component={Link} to="/about" uppercase>About</CustomButton>
-<CustomButton component={Link} to="/shop" uppercase>Shop</CustomButton>
-<CustomButton component={Link} to="/blog" uppercase>Blogs</CustomButton>
-<CustomButton component={Link} to="/pages" uppercase>Pages</CustomButton>
-<CustomButton component={Link} to="/contact" uppercase>Contact</CustomButton>
+              <CustomButton component={Link} to="/" uppercase>Home</CustomButton>
+              <CustomButton component={Link} to="/about" uppercase>About</CustomButton>
+              <CustomButton component={Link} to="/shop" uppercase>Shop</CustomButton>
+              <CustomButton component={Link} to="/blog" uppercase>Blogs</CustomButton>
+              {/* <CustomButton component={Link} to="/pages" uppercase>Pages</CustomButton> */}
+              <CustomButton component={Link} to="/contact" uppercase>Contact</CustomButton>
 
             </Box>
           )}
@@ -64,16 +64,16 @@ const Header = () => {
           {/* Hamburger Icon for Mobile */}
           {isMobile && (
             <>
-            
-            {/* <IconButton edge="end" onClick={toggleDrawer(true)}> */}
-            <IconButton onClick={toggleDrawer(true)}>
-              <MenuIcon sx={{marginLeft:'20px'}}/>
-            </IconButton>
 
-            <Box sx={{ position: 'absolute', right: 30, display: 'flex', alignItems: 'center' }}>
-              {/* Căn chỉnh UserItems ở góc phải trên Mobile, cần cho nằm trong 1 Box */}
-            <UserItems/>
-            </Box>
+              {/* <IconButton edge="end" onClick={toggleDrawer(true)}> */}
+              <IconButton onClick={toggleDrawer(true)}>
+                <MenuIcon sx={{ marginLeft: '20px' }} />
+              </IconButton>
+
+              <Box sx={{ position: 'absolute', right: 30, display: 'flex', alignItems: 'center' }}>
+                {/* Căn chỉnh UserItems ở góc phải trên Mobile, cần cho nằm trong 1 Box */}
+                <UserItems />
+              </Box>
             </>
           )}
         </Toolbar>
@@ -97,17 +97,17 @@ const Header = () => {
             justifyItems: 'center', // Căn giữa các nút theo chiều ngang
             alignItems: 'center',
             mt: 2, // Khoảng cách trên cùng
-            }}>
-<CustomButton component={Link} to="/" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Home</CustomButton>
-<CustomButton component={Link} to="/about" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>About</CustomButton>
-<CustomButton component={Link} to="/shop" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Shop</CustomButton>
-<CustomButton component={Link} to="/blog" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Blogs</CustomButton>
-<CustomButton component={Link} to="/pages" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Pages</CustomButton>
-<CustomButton component={Link} to="/contact" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Contact</CustomButton>
+          }}>
+            <CustomButton component={Link} to="/" sx={{ backgroundColor: 'blue', borderRadius: '8px', color: 'red', width: '150px', py: 2 }}>Home</CustomButton>
+            <CustomButton component={Link} to="/about" sx={{ backgroundColor: 'blue', borderRadius: '8px', color: 'red', width: '150px', py: 2 }}>About</CustomButton>
+            <CustomButton component={Link} to="/shop" sx={{ backgroundColor: 'blue', borderRadius: '8px', color: 'red', width: '150px', py: 2 }}>Shop</CustomButton>
+            <CustomButton component={Link} to="/blog" sx={{ backgroundColor: 'blue', borderRadius: '8px', color: 'red', width: '150px', py: 2 }}>Blogs</CustomButton>
+            {/* <CustomButton component={Link} to="/pages" sx={{ backgroundColor:'blue', borderRadius:'8px', color:'red', width:'150px', py: 2}}>Pages</CustomButton> */}
+            <CustomButton component={Link} to="/contact" sx={{ backgroundColor: 'blue', borderRadius: '8px', color: 'red', width: '150px', py: 2 }}>Contact</CustomButton>
 
-          {/* <CustomButton>Extra</CustomButton>  */}
-          {/* Nút thứ 7 - khi này sẽ là 1 cột 4, 1 cột 3 */}
-        </Box>
+            {/* <CustomButton>Extra</CustomButton>  */}
+            {/* Nút thứ 7 - khi này sẽ là 1 cột 4, 1 cột 3 */}
+          </Box>
         </Box>
       </Drawer>
     </>
