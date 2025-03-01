@@ -34,7 +34,7 @@ const GalleryProduct = ({ images }) => {
           onClick={handlePrevThumb}
           sx={{
             position: "absolute",
-            top: +30,
+            top: -20,
             left: "50%",
             transform: "translateX(-50%)",
             backgroundColor: "white",
@@ -48,7 +48,7 @@ const GalleryProduct = ({ images }) => {
         <Slider
           asNavFor={nav1}
           ref={slider2}
-          slidesToShow={3} // Hiển thị tối đa 5 ảnh
+          slidesToShow={3} // Hiển thị tối đa 3 ảnh
           slidesToScroll={1}
           arrows={false}
           focusOnSelect={true}
@@ -57,12 +57,13 @@ const GalleryProduct = ({ images }) => {
           verticalSwiping={true}
         >
           {images.map((img, index) => (
-            <Box key={index} sx={{ padding: "5px", cursor: "pointer" }}>
+            <Box key={index} sx={{ padding: "5px", cursor: "pointer", marginTop: "5px" }}>
               <img 
                 src={img} 
                 alt={`thumb-${index}`} 
                 style={{
                   width: "100%", 
+                  marginTop: "10px",
                   borderRadius: "8px", 
                   border: "2px solid transparent"
                 }}
@@ -76,7 +77,7 @@ const GalleryProduct = ({ images }) => {
           onClick={handleNextThumb}
           sx={{
             position: "absolute",
-            bottom: +95,
+            bottom: +50,
             left: "50%",
             transform: "translateX(-50%)",
             backgroundColor: "white",

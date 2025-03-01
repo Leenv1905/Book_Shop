@@ -4,7 +4,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import StarIcon from "@mui/icons-material/Star";
-import InfoProduct from '../../components/display/free/InfoProduct'; // Component InfoProduct
+import InfoProduct from '../../components/display/product/InfoProduct'; // Component InfoProduct
 
 
 const ProductDetail = () => {

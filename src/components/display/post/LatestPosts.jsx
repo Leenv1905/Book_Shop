@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
-import PostCard from "../free/PostCard";
+import PostCard from "./PostCard";
 import Grid from "@mui/material/Grid";
 // import Grid from "@mui/material/Grid2";
 const LatestPosts = () => {

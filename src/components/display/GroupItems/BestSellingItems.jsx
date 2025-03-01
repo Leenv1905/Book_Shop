@@ -1,5 +1,5 @@
 import React from 'react';
-import ProductSlider from '../../action/ProductSlider';
+import ProductSlider from '../product/ProductSlider';
 import { Box, Container, Typography, Link, Button } from '@mui/material';
 
 const products = [

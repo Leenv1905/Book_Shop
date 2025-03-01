@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Menu,
-  MenuItem,
   Typography,
   Box,
   Button,
@@ -10,13 +9,25 @@ import {
   ListItem,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useNavigate } from "react-router-dom";
 
 const CartDropdown = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
 
   const handleOpen = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+
+  const handleViewCart = () => {
+    navigate("/cart");
+    handleClose();
+  };
+
+  const handleCheckout = () => {
+    navigate("/checkout");
+    handleClose();
+  };
 
   return (
     <>
@@ -50,10 +61,10 @@ const CartDropdown = () => {
           </ListItem>
         </List>
         <Box mt={2}>
-          <Button variant="contained" fullWidth>
+          <Button variant="contained" fullWidth onClick={handleViewCart}>
             View Cart
           </Button>
-          <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
+          <Button variant="outlined" fullWidth sx={{ mt: 1 }} onClick={handleCheckout}>
             Checkout
           </Button>
         </Box>

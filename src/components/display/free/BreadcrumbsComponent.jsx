@@ -20,7 +20,7 @@ const BreadcrumbsComponent = ({ title, breadcrumbs }) => {
     >
       <Container>
         <Box textAlign="center">
-          <Typography variant="h1" fontWeight="bold" color="black">
+          <Typography fontSize={80} fontWeight="bold" color="black">
             {title} {/* Nhận title từ props */}
           </Typography>
           <Breadcrumbs

@@ -1,6 +1,6 @@
 import React from 'react';
 import Slider from 'react-slick';
-import ProductCard from '../display/free/ProductCard';
+import ProductCard from './ProductCard';
 import { styled } from '@mui/system';
 import { ArrowForward, ArrowBack } from '@mui/icons-material';
 import { Box } from "@mui/material";
