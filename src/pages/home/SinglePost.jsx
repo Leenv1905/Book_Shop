@@ -1,11 +1,21 @@
 import { Container, Typography, Grid, Card, CardContent, Box } from "@mui/material";
 
 import PostTagsAndShare from '../../components/display/free/PostTagsAndShare'; // Các nút điều hướng mạng xã hội: VD facebook, twitter, linkedin, youtube
+import InstagramGallery from "../../components/display/GroupItems/InstagramGallery";
+import LatestPosts from "../../components/display/post/LatestPosts";
+import BreadcrumbsComponent from '../../components/display/free/BreadcrumbsComponent'; // Component Breadcrumbs
 
 
 const SinglePost = () => {
   return (
     <>
+        <BreadcrumbsComponent         
+        title="Post"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Post" },
+          { label: "Post" } // Không có href → là trang hiện tại
+        ]}/>
       <Container maxWidth="xl" sx={{ py: 4}}>
         <Grid container spacing={4}>
           <Grid item xs={12}>
@@ -118,6 +128,8 @@ const SinglePost = () => {
 
       </Container>
 
+      <LatestPosts />
+        <InstagramGallery />
     </>
   );
 };

@@ -1,9 +1,12 @@
 import React from "react";
 import { Box, Grid, Typography, TextField, Button, Link } from "@mui/material";
+import LatestPosts from "../../components/display/post/LatestPosts";
+import InstagramGallery from "../../components/display/GroupItems/InstagramGallery";
+import BreadcrumbsComponent from '../../components/display/free/BreadcrumbsComponent';
 
 const ContactUs = () => {
   return (
-    <Box py={6} px={3}>
+    <Box py={6} px={3} sx={{ width: "80%", margin: "auto", justifyContent: "center" }}>
       <Grid container spacing={4}>
         {/* Contact Info */}
         <Grid item xs={12} md={6}>
@@ -65,10 +68,24 @@ const ContactUs = () => {
             <Grid item xs={12}>
               <TextField fullWidth multiline rows={4} label="Message" required />
             </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" fullWidth>
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
+              {/* <Button variant="contained" color="primary" fullWidth>
+                Submit
+              </Button> */}
+              <Button
+              variant="contained"
+                sx={{
+                  backgroundColor: "#F86D72",
+                  fontWeight: 'bold', p: 2,
+                  fontSize: '20px',
+                  borderRadius: 20,
+                  padding: "10px 50px",
+                  color: "white", '&:hover': { backgroundColor: "#193710" }
+                }}
+              >
                 Submit
               </Button>
+
             </Grid>
           </Grid>
         </Grid>
@@ -85,7 +102,7 @@ const OurStores = () => {
     { country: "China", address: "13 Rue Montmartre 75001, Paris, France", phone: "+123 222 333 44" },
   ];
   return (
-    <Box py={6} px={3}>
+    <Box py={6} px={3} sx={{ width: "80%", margin: "auto", justifyContent: "center" }}>
       <Grid container spacing={4} alignItems="center">
         <Grid item xs={12} md={6}>
           <Box component="img" src="/demo/images/single-image2.jpg" width="100%" borderRadius={2} />
@@ -115,8 +132,18 @@ const OurStores = () => {
 const ContactPage = () => {
   return (
     <>
+      <BreadcrumbsComponent
+        title="Contact"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Contact", href: "/contact" },
+          { label: "Contact" },
+        ]}
+      />
       <ContactUs />
       <OurStores />
+      <LatestPosts />
+      <InstagramGallery />
     </>
   );
 };

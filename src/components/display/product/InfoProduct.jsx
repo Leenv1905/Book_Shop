@@ -29,16 +29,32 @@ const InfoProduct = () => {
   return (
     <Container>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="product tabs" centered>
-          <Tab label="Description" />
-          <Tab label="Additional Information" />
-          <Tab label="Shipping & Return" />
-          <Tab label="Reviews (02)" />
+        <Tabs
+          variant='fullWidth'
+          value={value}
+          onChange={handleChange}
+          aria-label="product tabs"
+          centered
+          TabIndicatorProps={{ style: { backgroundColor: '#F86D72' } }}
+        >
+          <Tab
+            label={<Typography variant="h6" style={{ color: value === 0 ? '#F86D72' : 'inherit' }}>Description</Typography>}
+          />
+          <Tab
+            label={<Typography variant="h6" style={{ color: value === 1 ? '#F86D72' : 'inherit' }}>Information</Typography>}
+          />
+          <Tab
+            label={<Typography variant="h6" style={{ color: value === 2 ? '#F86D72' : 'inherit' }}>Shipping & Return</Typography>}
+          />
+          <Tab
+            label={<Typography variant="h6" style={{ color: value === 3 ? '#F86D72' : 'inherit' }}>Reviews (02)</Typography>}
+          />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
         <Typography variant="h6">Product Description</Typography>
-        <Typography variant="body1">
+        <br />
+        <Typography variant="h6">
           Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros.
           Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede.
           Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim
@@ -50,22 +66,25 @@ const InfoProduct = () => {
             <ListItemIcon>
               <StarIcon />
             </ListItemIcon>
-            <ListItemText primary="Donec nec justo eget felis facilisis fermentum." />
+            {/* <ListItemText primary="Donec nec justo eget felis facilisis fermentum." /> */}
+            <Typography variant="h6">Donec nec justo eget felis facilisis fermentum.</Typography>
           </ListItem>
           <ListItem>
             <ListItemIcon>
               <StarIcon />
             </ListItemIcon>
-            <ListItemText primary="Suspendisse urna viverra non, semper suscipit pede." />
+            {/* <ListItemText primary="Suspendisse urna viverra non, semper suscipit pede." /> */}
+            <Typography variant="h6">Suspendisse urna viverra non, semper suscipit pede.</Typography>
           </ListItem>
           <ListItem>
             <ListItemIcon>
               <StarIcon />
             </ListItemIcon>
-            <ListItemText primary="Aliquam porttitor mauris sit amet orci." />
+            {/* <ListItemText primary="Aliquam porttitor mauris sit amet orci." /> */}
+            <Typography variant="h6">Aliquam porttitor mauris sit amet orci.</Typography>
           </ListItem>
         </List>
-        <Typography variant="body1">
+        <Typography variant="h6">
           Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros.
           Nullam malesuada erat ut turpis. Suspendisse urna viverra non, semper suscipit, posuere a, pede.
           Donec nec justo eget felis facilisis fermentum. Aliquam porttitor mauris sit amet orci. Aenean dignissim
@@ -75,24 +94,24 @@ const InfoProduct = () => {
       </TabPanel>
       <TabPanel value={value} index={1}>
         <Typography variant="h6">It is Comfortable and Best</Typography>
-        <Typography variant="body1">
+        <Typography variant="h6">
           Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
           Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
         </Typography>
       </TabPanel>
       <TabPanel value={value} index={2}>
         <Typography variant="h6">Returns Policy</Typography>
-        <Typography variant="body1">
+        <Typography variant="h6">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce eros justo, accumsan non dui sit amet.
           Phasellus semper volutpat mi sed imperdiet. Ut odio lectus, vulputate non ex non, mattis sollicitudin purus.
           Mauris consequat justo a enim interdum, in consequat dolor accumsan. Nulla iaculis diam purus, ut vehicula
           leo efficitur at.
         </Typography>
-        <Typography variant="body1">
+        <Typography variant="h6">
           Interdum et malesuada fames ac ante ipsum primis in faucibus. In blandit nunc enim, sit amet pharetra erat aliquet ac.
         </Typography>
         <Typography variant="h6">Shipping</Typography>
-        <Typography variant="body1">
+        <Typography variant="h6">
           Pellentesque ultrices ut sem sit amet lacinia. Sed nisi dui, ultrices ut turpis pulvinar. Sed fringilla ex eget
           lorem consectetur, consectetur blandit lacus varius. Duis vel scelerisque elit, et vestibulum metus. Integer sit
           amet tincidunt tortor. Ut lacinia ullamcorper massa, a fermentum arcu vehicula ut. Ut efficitur faucibus dui
@@ -148,10 +167,10 @@ const ReviewItem = ({ imageSrc, author, date, text }) => (
     <Box ml={2}>
       <Rating value={5} readOnly />
       <Typography variant="subtitle1">{author}</Typography>
-      <Typography variant="body2" color="textSecondary">
+      <Typography variant="body1" color="textSecondary">
         {date}
       </Typography>
-      <Typography variant="body1">{text}</Typography>
+      <Typography variant="h6">{text}</Typography>
     </Box>
   </Box>
 );
@@ -159,7 +178,7 @@ const ReviewItem = ({ imageSrc, author, date, text }) => (
 const AddReview = () => (
   <Box mt={3}>
     <Typography variant="h6">Add a review</Typography>
-    <Typography variant="body2">Your email address will not be published. Required fields are marked *</Typography>
+    <Typography variant="h6">Your email address will not be published. Required fields are marked *</Typography>
     <Box component="form" mt={2}>
       <Box display="flex" gap={2} mb={2}>
         <TextField name="name" label="Write your name here *" fullWidth />

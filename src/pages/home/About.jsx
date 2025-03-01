@@ -1,9 +1,21 @@
 import React from "react";
 import { Box, Grid, Typography, Button } from "@mui/material";
+import LatestPosts from "../../components/display/post/LatestPosts";
+import InstagramGallery from "../../components/display/GroupItems/InstagramGallery";
+import BreadcrumbsComponent from '../../components/display/free/BreadcrumbsComponent';
 
 const About = () => {
   return (
-    <Box id="about-us" sx={{ py: 6 }}>
+    <>
+          <BreadcrumbsComponent
+        title="About"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "About", href: "/about" },
+          { label: "About" },
+        ]}
+      />
+    <Box id="about-us" sx={{pt: 5, width: "90%", margin: "auto", justifyContent: "center" }}>
       <Grid container spacing={4} justifyContent="center">
         {/* Hình ảnh và nút Play */}
         <Grid item xs={12} md={6} sx={{ display: "flex", justifyContent: "center" }}>
@@ -55,6 +67,9 @@ const About = () => {
         </Grid>
       </Grid>
     </Box>
+    <LatestPosts />
+    <InstagramGallery />
+    </>
   );
 };
 

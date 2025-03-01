@@ -47,7 +47,7 @@ const PostCard = ({ image, category, title, description, postLink }) => {
         <Typography variant="body2" color="text.secondary" sx={{ fontSize: "18px" }}>
           {description}{" "}
           <span 
-            style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
+            style={{ color: "gray", cursor: "pointer", textDecoration: "underline" }}
             onClick={(e) => { 
               e.stopPropagation(); // Ngăn chặn sự kiện click vào card
               navigate(postLink);
