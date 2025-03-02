@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Box, Radio, RadioGroup, FormControlLabel, FormControl, Chip, FormLabel, Link } from '@mui/material';
+import { Container, Typography, TextField, Button, Box, Chip } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
 import Grid from '@mui/material/Grid2';
 import { Autocomplete } from '@mui/material';
-import { Grid4x4Rounded } from '@mui/icons-material';
-
 
 const theme = createTheme({
   typography: {
@@ -37,13 +34,6 @@ function AddProduct() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (password !== confirmPassword) {
-  //     setError('Passwords do not match');
-  //     return;
-  //   }
-
   // TẢI ẢNH LÊN TRÊN FORM
   const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
@@ -54,63 +44,31 @@ function AddProduct() {
     setPreviewUrls(previewUrls);
   };
 
-    // KHAI BÁO ĐỂ NHẬP NHIỀU TAG
-    const [tags, setTags] = useState([]);
-    const handleTagsChange = (event, value) => { setTags(value); };
-    const availableTags = ["Whole Spices", "Spice Blends", "Powdered Spices"];
+  // KHAI BÁO ĐỂ NHẬP NHIỀU TAG
+  const [tags, setTags] = useState([]);
+  const handleTagsChange = (event, value) => { setTags(value); };
+  const availableTags = ["Whole Spices", "Spice Blends", "Powdered Spices"];
 
-    // KHAI BÁO PHƯƠNG THỨC FORM DATA
-  const handleSubmit = async (e) => {
+  // KHAI BÁO PHƯƠNG THỨC FORM DATA
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('productPrice', productPrice);
-    formData.append('salePrice', salePrice);
-    formData.append('discount', discount);
-    formData.append('weight', weight);
-    formData.append('salePerMonth', salePerMonth);
-    formData.append('dateImport', dateImport);
-    formData.append('supplier', supplier);
-    formData.append('description', description);
-    formData.append('ingredient', ingredient);
-    formData.append('recipe', recipe);
-    formData.append('tags', tags.join(','));
-
-    images.forEach((image, i) => {
-      formData.append(`image[]`, image);
-    });
-
-    try {
-      const response = await axios.post('http://localhost:3000/phpm/addProduct.php', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      if (response.data.success) {
-        setSuccess('Registration successful');
-        setError('');
-        // RESET CÁC Ô NHẬP DỮ LIỆU VỀ BAN ĐẦU
-        setName(''); 
-        setProductPrice(''); 
-        setSalePrice(''); 
-        setDiscount(''); 
-        setWeight(''); 
-        setSalePerMonth(''); 
-        setdateImport(''); 
-        setSupplier(''); 
-        setDescription(''); 
-        setIngredient(''); 
-        setRecipe(''); 
-        setTags([]); 
-        setImages([]); 
-        setPreviewUrls([]);
-      } else {
-        setError(response.data.message);
-      }
-    } catch (error) {
-      console.error('Error registering:', error);
-      setError('An error occurred. Please try again later.');
-    }
+    setSuccess('Product added successfully');
+    setError('');
+    // RESET CÁC Ô NHẬP DỮ LIỆU VỀ BAN ĐẦU
+    setName(''); 
+    setProductPrice(''); 
+    setSalePrice(''); 
+    setDiscount(''); 
+    setWeight(''); 
+    setSalePerMonth(''); 
+    setdateImport(''); 
+    setSupplier(''); 
+    setDescription(''); 
+    setIngredient(''); 
+    setRecipe(''); 
+    setTags([]); 
+    setImages([]); 
+    setPreviewUrls([]);
   };
 
   return (
@@ -125,12 +83,11 @@ function AddProduct() {
           background: 'rgba(227, 244, 251, 0.5)',
         }}></div>
 
-        <Box sx={{ flexGrow: 1, padding: 5,  }}>
+        <Box sx={{ flexGrow: 1, padding: 5 }}>
           <form onSubmit={handleSubmit}>
             <Typography variant="h4" component="h1" gutterBottom color="#0c4646">ADD NEW PRODUCT FORM</Typography>
             <Button
               type="submit"
-              // fullWidth
               variant="contained"
               color="primary"
               sx={{ paddingY: 1.5, fontSize: '16px', mt: 2 }}
@@ -155,7 +112,6 @@ function AddProduct() {
                 />
               </Grid>
               <Grid item size={{ xs: 2, sm: 4, md: 4 }}>
-
                 <TextField
                   fullWidth
                   label="Product Price"
@@ -294,17 +250,11 @@ function AddProduct() {
                   rows={1}
                 />
               </Grid>
-
             </Grid>
 
-            <Grid container spacing={{ xs: 5, md: 10 }}
-            columns={{ xs: 4, sm: 8, md: 12 }} 
-            alignItems="stretch" justifyContent="center"
-            sx={{padding: '30px'}} >
-
+            <Grid container spacing={{ xs: 5, md: 10 }} columns={{ xs: 4, sm: 8, md: 12 }} alignItems="stretch" justifyContent="center" sx={{ padding: '30px' }}>
               <Grid item size={{ xs: 12, sm: 4, md: 4 }}>
                 <Autocomplete
-                  // fullWidth
                   multiple
                   margin="normal"
                   id="tags-filled"
@@ -327,10 +277,9 @@ function AddProduct() {
                   )}
                 />
               </Grid>
-              </Grid>
+            </Grid>
 
-
-              <Grid container spacing={{ xs: 5, md: 10 }} columns={{ xs: 4, sm: 8, md: 12 }} alignItems="stretch" justifyContent="center">
+            <Grid container spacing={{ xs: 5, md: 10 }} columns={{ xs: 4, sm: 8, md: 12 }} alignItems="stretch" justifyContent="center">
               <Grid item size={{ xs: 4, sm: 8, md: 12 }}>
                 <input
                   accept="image/*"
@@ -341,16 +290,18 @@ function AddProduct() {
                   onChange={handleImageChange}
                 />
                 <label htmlFor="raised-button-file">
-                  <Button variant="contained" color="primary" component="span"> Upload Images </Button> </label>
+                  <Button variant="contained" color="primary" component="span"> Upload Images </Button>
+                </label>
 
                 <Grid item xs={12}>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}> {previewUrls.map((url, index) => (<img key={index} src={url} alt={`Preview ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />))} </Box>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                    {previewUrls.map((url, index) => (
+                      <img key={index} src={url} alt={`Preview ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />
+                    ))}
+                  </Box>
                 </Grid>
               </Grid>
-
             </Grid>
-
-
           </form>
         </Box>
       </div>

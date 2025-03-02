@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { useTheme, styled, alpha } from '@mui/material/styles';
-import InputBase from '@mui/material/InputBase';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -25,13 +24,6 @@ import NoteAltOutlinedIcon from '@mui/icons-material/NoteAltOutlined';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import PeopleOutlineOutlinedIcon from '@mui/icons-material/PeopleOutlineOutlined';
 import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import Tooltip from '@mui/material/Tooltip';
-import Avatar from '@mui/material/Avatar';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import ColorModeIconDropdown from '../componentsDashboard/Themebutton';
-import AppTheme from '../componentsDashboard/Theme';
 
 const drawerWidth = 240;
 
@@ -66,47 +58,6 @@ function LayoutAdmin() {
     <NoteAltOutlinedIcon />,
   ];
 
-  const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(1),
-      width: 'auto',
-    },
-  }));
-
-  const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }));
-
-  const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    width: '100%',
-    '& .MuiInputBase-input': {
-      padding: theme.spacing(1, 1, 1, 0),
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create('width'),
-      [theme.breakpoints.up('sm')]: {
-        width: '20ch',
-        '&:focus': {
-          width: '30ch',
-        },
-      },
-    },
-  }));
-
   const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -119,7 +70,9 @@ function LayoutAdmin() {
   };
 
   const drawer = (
-    <div style={{ backgroundColor: '#082123', height: '100vh', overflow: 'auto' }}>
+    // <div style={{ backgroundColor: '#09262b', height: '100vh', overflow: 'auto' }}>
+    <div style={{ backgroundColor: '#99b7bb', height: '100vh', overflow: 'auto' }}>
+
       <Toolbar>
         <IconButton
           color="inherit"
@@ -129,7 +82,7 @@ function LayoutAdmin() {
           sx={{ display: { xs: 'none', sm: 'block' } }}
         >
           {drawerOpen ? (
-            <img src="/sp/logo2.png" alt="SHOP" style={{ width: '120px', height: 'auto' }} />
+            <img src="/demo/images/main-logo.png" alt="SHOP" style={{ width: '120px', height: 'auto' }} />
           ) : (
             <MenuIcon sx={{ color: '#d5d6d6' }} />
           )}
@@ -143,7 +96,7 @@ function LayoutAdmin() {
 
       <List>
         {['Dashboard', 'All Products', 'Add Product', 'User'].map((text, index) => {
-          const paths = ['/admin', '/admin/allproduct', '/admin/add', '/admin/add-user'];
+          const paths = ['/admin', '/admin/allproduct', '/admin/addproduct', '/admin/add-user'];
           return (
             <ListItem key={text} disablePadding>
               <ListItemButton
@@ -212,8 +165,8 @@ function LayoutAdmin() {
   );
 
   return (
-    <AppTheme>
-      <CssBaseline enableColorScheme />
+    // <AppTheme>
+      // <CssBaseline enableColorScheme />
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <AppBar
@@ -223,7 +176,7 @@ function LayoutAdmin() {
             width: { sm: `calc(100% - ${drawerOpen ? drawerWidth : 0}px)` },
             ml: { sm: drawerOpen ? `${drawerWidth}px` : 0 },
             transition: 'width 0.3s ease, margin 0.3s ease',
-            backgroundColor: '#555764',
+            backgroundColor: '#3c7980',
             color: '#fffde7',
           }}
         >
@@ -252,14 +205,6 @@ function LayoutAdmin() {
               ADMIN
             </Typography>
 
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-            </Search>
-
-            <ColorModeIconDropdown />
           </Toolbar>
         </AppBar>
 
@@ -315,7 +260,7 @@ function LayoutAdmin() {
           <Outlet />
         </Box>
       </Box>
-    </AppTheme>
+    // </AppTheme>
   );
 }
 
