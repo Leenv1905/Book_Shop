@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { useNavigate } from 'react-router-dom';
@@ -8,32 +7,53 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
-import ConfirmDeleteModal from '../../components/ConfirmDeleteModal'; // Gọi modal xác nhận xóa
+import ConfirmDeleteModal from './ConfirmDeleteModal'; // Gọi modal xác nhận xóa
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
 const AllProduct = () => {
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState([
+    // Sample data
+    {
+      id: 1,
+      name: 'Product 1',
+      productPrice: 100,
+      salePrice: 80,
+      discount: 20,
+      weight: 1,
+      salePerMonth: 10,
+      dateImport: '2023-01-01',
+      supplier: 'Supplier 1',
+      description: 'Description 1',
+      ingredient: 'Ingredient 1',
+      recipe: 'Recipe 1',
+      tags: 'Tag 1',
+      images: ['image1.jpg', 'image2.jpg'],
+    },
+    {
+      id: 2,
+      name: 'Product 2',
+      productPrice: 200,
+      salePrice: 150,
+      discount: 25,
+      weight: 2,
+      salePerMonth: 20,
+      dateImport: '2023-02-01',
+      supplier: 'Supplier 2',
+      description: 'Description 2',
+      ingredient: 'Ingredient 2',
+      recipe: 'Recipe 2',
+      tags: 'Tag 2',
+      images: ['image3.jpg', 'image4.jpg'],
+    },
+  ]);
   const [openModal, setOpenModal] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('http://localhost:3000/phpm/getProducts.php');
-        setRows(response.data || []);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    fetchData();
-  }, []);
-
   const handleAddProduct = () => {
-    navigate('/admin/add');
+    navigate('/admin/addproduct'); // Chuyển hướng đến trang thêm sản phẩm
   };
 
   const handleDelete = (id) => {
@@ -41,27 +61,11 @@ const AllProduct = () => {
     setOpenModal(true); // Hiện xác nhận Modal xoa sản phẩm
   };
 
-  const confirmDelete = async () => {
-    try {
-      const response = await axios.post(
-        'http://localhost:3000/phpm/deleteProduct.php', 
-        { id: selectedProductId }, // Dữ liệu gửi đi
-        {
-          headers: { 'Content-Type': 'application/json' }, // Header quan trọng
-        }
-      );
-  
-      if (response.data.success) {
-        setRows(rows.filter((row) => row.id !== selectedProductId)); // Cập nhật danh sách sản phẩm
-      } else {
-        console.error('Failed to delete product:', response.data.message);
-      }
-      setOpenModal(false);
-    } catch (error) {
-      console.error('Error deleting product:', error);
-    }
+  const confirmDelete = () => {
+    setRows(rows.filter((row) => row.id !== selectedProductId)); // Cập nhật danh sách sản phẩm
+    setOpenModal(false);
   };
-  
+
   const cancelDelete = () => {
     setOpenModal(false); // Đóng modal nếu cancel
   };
@@ -69,26 +73,31 @@ const AllProduct = () => {
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
     { field: 'name', headerName: 'Product Name', width: 130 },
-    { field: 'productPrice', headerName: 'Product Price', type:'number', width: 130 },
+    { field: 'productPrice', headerName: 'Product Price', type: 'number', width: 130 },
     { field: 'salePrice', headerName: 'Promotional Price', type: 'number', width: 130 },
     { field: 'discount', headerName: 'Discount', type: 'number', width: 90 },
     { field: 'weight', headerName: 'Weight', type: 'number', width: 90 },
     { field: 'salePerMonth', headerName: 'Sale Per Month', type: 'number', width: 90 },
-    { field: 'dateImport', headerName: 'Date Import', type: 'number', width: 90 },
-    { field: 'supplier', headerName: 'Supplier', type: 'number', width: 90 },
+    { field: 'dateImport', headerName: 'Date Import', width: 90 },
+    { field: 'supplier', headerName: 'Supplier', width: 90 },
     { field: 'description', headerName: 'Description', width: 90 },
     { field: 'ingredient', headerName: 'Ingredient', width: 90 },
     { field: 'recipe', headerName: 'Recipe', width: 90 },
     { field: 'tags', headerName: 'Hashtag', width: 90 },
-    { field: 'images', headerName: 'Images', width: 150, renderCell: (params) => params.row.images.map((url, index) => ( 
-      <img key={index} src={`http://localhost:3000/${url}`} alt={`Product ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />
-    )) },
+    {
+      field: 'images',
+      headerName: 'Images',
+      width: 150,
+      renderCell: (params) => params.row.images.map((url, index) => (
+        <img key={index} src={`http://localhost:3000/${url}`} alt={`Product ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />
+      )),
+    },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 50,
-      renderCell: (params) => <ActionsMenu id={params.row.id} handleDelete={handleDelete} />
-    }
+      renderCell: (params) => <ActionsMenu id={params.row.id} handleDelete={handleDelete} />,
+    },
   ];
 
   return (
@@ -137,13 +146,15 @@ const ActionsMenu = ({ id, handleDelete }) => {  // Nhận dữ liệu id từ s
 
   const handleView = () => {
     // console.log('Viewing item with id:', id);
-    navigate(`/admin/viewProduct/${id}`);
+    navigate(`/admin/productview`); // Chuyển hướng đến trang chi tiết sản phẩm
+    // navigate(`/admin/viewProduct/${id}`);
     handleClose();
   };
 
   const handleEdit = () => {
     // console.log('Editing item with id:', id);
-    navigate(`/admin/editProduct/${id}`);
+    navigate(`/admin/editproduct`);
+    // navigate(`/admin/editproduct/${id}`);
     handleClose();
   };
 

@@ -1,8 +1,10 @@
 import React from "react";
-import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Paper, TextField, Stack, Divider } from "@mui/material";
+import { Box, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Paper, TextField, Stack, Divider, colors } from "@mui/material";
 import BreadcrumbsComponent from '../../components/display/free/BreadcrumbsComponent';
 import InstagramGallery from "../../components/display/GroupItems/InstagramGallery";
 import { useNavigate } from "react-router-dom";
+import BuyDone from "./BuyDone";
+
 
 const cartItems = [
     {
@@ -22,11 +24,16 @@ const cartItems = [
 ];
 
 const CheckOut = () => {
-        const navigate = useNavigate();
-    
-        const handleToCart = () => {
-            navigate("/cart");
-        };
+    const navigate = useNavigate();
+
+    const handleToCart = () => {
+        navigate("/cart");
+    };
+    const [open, setOpen] = React.useState(false);
+
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
     return (
         <>
             <BreadcrumbsComponent
@@ -45,6 +52,13 @@ const CheckOut = () => {
                 <TableContainer component={Paper} sx={{ mb: 4 }}>
                     <Table>
                         <TableHead>
+                            <TableRow>
+                                <TableCell colSpan={3} align="center">
+                                    <Typography variant="h6">
+                                        <Box component="span" className="order-label">Thanh toán cho đơn hàng số:</Box> <Box component="span" className="order-number" sx={{ color: 'red' }}>#KKK67890</Box>
+                                    </Typography>
+                                </TableCell>
+                            </TableRow>
                             <TableRow>
                                 <TableCell><Typography variant="h5" sx={{ ml: 3 }}>Product</ Typography></TableCell>
                                 <TableCell align="center"><Typography variant="h5">Quantity</ Typography></TableCell>
@@ -108,10 +122,11 @@ const CheckOut = () => {
                 {/* Thông tin thanh toán */}
                 <Stack direction="row" spacing={2} justifyContent="center">
                     <Button variant="contained" sx={{ backgroundColor: "#183e3e", fontWeight: 'bold', p: 2, fontSize: '20px', borderRadius: 20, color: "white", '&:hover': { backgroundColor: "#F86D72" } }} onClick={handleToCart}>Back to Cart</Button>
-                    <Button variant="contained" sx={{ backgroundColor: "#F86D72", fontWeight: 'bold', p: 2, fontSize: '20px', borderRadius: 20, color: "white", '&:hover': { backgroundColor: "#183e3e" } }}>Place Order</Button>
+                    <Button variant="contained" sx={{ backgroundColor: "#F86D72", fontWeight: 'bold', p: 2, fontSize: '20px', borderRadius: 20, color: "white", '&:hover': { backgroundColor: "#183e3e" } }} onClick={handleOpen}>Place Order</Button>
                 </Stack>
             </Box>
             <InstagramGallery />
+            <BuyDone open={open} handleClose={handleClose} />
         </>
     );
 };

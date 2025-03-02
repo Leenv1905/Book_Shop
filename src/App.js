@@ -15,10 +15,14 @@ import SinglePost from "./pages/home/SinglePost";
 import ProductDetail from "./components/display/product/ProductDetail";
 import Cart from "./pages/buy/Cart";
 import CheckOut from "./pages/buy/CheckOut";
+import CustomerProfile from "./pages/customer/CustomerProfile";
 
 // ĐOẠN NÀY LÀ GIAO DIỆN ADMIN
 import LayoutAdmin from "./admin/layout/LayoutAdmin";
-
+import AllProduct from "./admin/product/AllProduct";
+import AddProduct from "./admin/product/AddProduct";
+import EditProduct from "./admin/product/EditProduct";
+import ProductView from "./admin/product/ProductView";
 
 
 // ĐOẠN NÀY LÀ TEST
@@ -39,13 +43,19 @@ function App() {
             <Route path="productdetail" element={<ProductDetail />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<CheckOut />} />
+            <Route path="customerprofile" element={<CustomerProfile />} />
 
 
           </Route>
 
           <Route path="/admin" element={<LayoutAdmin />}>
-            {/* <Route index element={<Home />} /> */}
+            <Route index element={<AllProduct />} />
+            <Route path="allproduct" element={<AllProduct />} />
+            <Route path="addproduct" element={<AddProduct />} />
+            <Route path="editproduct" element={<EditProduct />} />
+            <Route path="productview" element={<ProductView />} />
             {/* <Route path="about" element={<About />} /> */}
+
           </Route>
 
 

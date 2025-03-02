@@ -10,6 +10,8 @@ import {
   ListItem,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { Link } from "react-router-dom";
+
 
 const WishlistDropdown = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -59,8 +61,8 @@ const WishlistDropdown = () => {
           <Button variant="contained" fullWidth>
             Add all to cart
           </Button>
-          <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
-            View Wishlist
+          <Button variant="outlined" fullWidth sx={{ mt: 1 }} component={Link} to="/customerprofile">
+            Xem tạm Customer
           </Button>
         </Box>
       </Menu>

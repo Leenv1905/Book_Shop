@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Typography, TextField, Button, Box, Chip, Autocomplete } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
 import Grid from '@mui/material/Grid2';
-
 
 const theme = createTheme({
   typography: {
@@ -20,7 +18,7 @@ const theme = createTheme({
   },
 });
 
-const EditPage = () => {
+const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState({
@@ -37,36 +35,35 @@ const EditPage = () => {
     ingredient: '',
     recipe: '',
     tags: [],
-    images: [], // Hình ảnh cũ từ server
-    newImages: [], // Hình ảnh mới cần upload
+    images: [],
+    newImages: [],
   });
 
   const [tags, setTags] = useState([]);
   const availableTags = ["Whole Spices", "Spice Blends", "Powdered Spices"];
+  const [imagesToDelete, setImagesToDelete] = useState([]);
 
-  // TẢI SẢN PHẨM KHI MỞ TRANG
+  // Dữ liệu mẫu để demo (thay vì lấy từ server)
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/phpm/getProducts.php?id=${id}`);
-        const productData = response.data;
-
-        // Chuyển đổi tags từ chuỗi thành mảng nếu cần thiết
-        if (productData.tags && typeof productData.tags === 'string') {
-          productData.tags = productData.tags.split(',').map(tag => tag.trim());
-        }
-
-        // Chuyển đổi đường dẫn hình ảnh thành định dạng đúng
-        if (productData.images && Array.isArray(productData.images)) {
-          productData.images = productData.images.map(path => path.replace(/\\/g, '/'));
-        }
-
-        setProduct({ ...productData, newImages: [] }); // Thiết lập giá trị mới cho sản phẩm
-      } catch (error) {
-        console.error('Error fetching product:', error);
-      }
+    // Dữ liệu giả lập
+    const demoProduct = {
+      id: id,
+      name: 'Sample Product',
+      productPrice: '100',
+      salePrice: '80',
+      discount: '20',
+      weight: '500',
+      salePerMonth: '50',
+      dateImport: '2025-03-01',
+      supplier: '123',
+      description: 'This is a sample product description',
+      ingredient: 'Sample ingredients',
+      recipe: 'Sample recipe',
+      tags: ['Whole Spices'],
+      images: ['sample-image1.jpg', 'sample-image2.jpg'],
+      newImages: [],
     };
-    fetchProduct();
+    setProduct(demoProduct);
   }, [id]);
 
   const handleChange = (e) => {
@@ -79,109 +76,26 @@ const EditPage = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    const previewUrls = files.map((file) => URL.createObjectURL(file));
     setProduct((prevProduct) => ({
       ...prevProduct,
       newImages: files,
     }));
   };
 
-  // Xóa ảnh khỏi danh sách hình ảnh hiện tại
-  const [imagesToDelete, setImagesToDelete] = useState([]);
-
   const handleDeleteImage = (img) => {
     setProduct((prevProduct) => ({
       ...prevProduct,
-      images: prevProduct.images.filter((image) => image !== img), // Loại bỏ hình ảnh
+      images: prevProduct.images.filter((image) => image !== img),
     }));
-    setImagesToDelete((prev) => [...prev, img]); // Thêm ID hình vào danh sách xóa
+    setImagesToDelete((prev) => [...prev, img]);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Chuẩn bị dữ liệu để gửi
-    const updatedProduct = {
-      ...product,
-      tags: product.tags.join(','), // Chuyển mảng tags thành chuỗi
-    };
-    // console.log('Updated product data:', updatedProduct); 
-    // Log để kiểm tra updatedProduct
-
-    // Sử dụng FormData để gửi hình ảnh
-    const formData = new FormData();
-    for (const key in updatedProduct) {
-      if (key !== 'newImages') {
-        formData.append(key, updatedProduct[key]);
-      }
-    }
-    // console.log('FormData after adding updated product:', formData);
-    // Log formData để kiểm tra- HOẶC
-      // Log nội dung formData theo cách sâu hơn nội dung bên trong
-  formData.forEach((value, key) => {
-    console.log(`${key}: ${value}`);
-  });
-
-    // Thêm hình ảnh cũ vào formData
-if (product.images && product.images.length > 0) {
-  product.images.forEach((img, index) => {
-    formData.append('existingImages[]', img);
-  });
-}
-    // Thêm hình ảnh mới vào formData
-    if (updatedProduct.newImages.length > 0) {
-      updatedProduct.newImages.forEach((file, index) => {
-        formData.append(`image[${index}]`, file);
-      });
-    }
-      // Log lại formData sau khi thêm hình ảnh
-  formData.forEach((value, key) => {
-    console.log(`${key}: ${value}`);
-  });
-
-    // Trước khi gửi dữ liệu
-    if (imagesToDelete.length > 0) {
-      formData.append('imagesToDelete', JSON.stringify(imagesToDelete));
-    }
-
-    // Gửi danh sách ID các hình cần xóa
-    // formData.append('imagesToDelete', JSON.stringify(imagesToDelete)); 
-    // Chuyển mảng ID ảnh cần xóa thành chuỗi JSON
-
-    // if (product.newImages.length > 0) {
-    //   product.newImages.forEach((file, index) => {
-    //     formData.append(`image[${index}]`, file);
-    //   });
-    // }
-
-    // TRÙNG MÃ, GỬI 2 LẦN LÊN SERVER
-
-    // console.log('FormData before sending:', formData); 
-    // Log formData trước khi gửi
-      // Log cuối cùng sâu hơn bên trong các cặp key, value
-  formData.forEach((value, key) => {
-    console.log(`${key}: ${value}`);
-  });
-
-    // Gửi dữ liệu đến server
-    try {
-      const response = await axios.post('http://localhost:3000/phpm/updateProduct.php', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Đảm bảo header đúng khi gửi FormData
-        },
-      });
-      console.log('Server response:', response); 
-      // Kiểm tra phản hồi từ server
-      
-      if (response.data.success) {
-        console.log('Product updated successfully');
-        navigate('/admin/allproduct');
-      } else {
-        console.error('Error updating product:', response.data.message);
-      }
-    } catch (error) {
-      console.error('Error updating product:', error);
-    }
+    // Log dữ liệu để kiểm tra và điều hướng về trang khác
+    console.log('Updated product:', product);
+    console.log('Images to delete:', imagesToDelete);
+    navigate('/admin/allproduct');
   };
 
   return (
@@ -195,7 +109,6 @@ if (product.images && product.images.length > 0) {
             <Button variant="contained" color="error" sx={{ paddingY: 1.5, fontSize: '16px', margin: 3 }} onClick={() => navigate('/admin/allproduct')}>CANCEL</Button>
 
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} alignItems="stretch" justifyContent="center">
-
               <Grid item size={{ xs: 2, sm: 4, md: 4 }}>
                 <TextField
                   fullWidth label="Product Name"
@@ -345,7 +258,6 @@ if (product.images && product.images.length > 0) {
                   rows={1}
                 />
               </Grid>
-
             </Grid>
 
             <Grid container spacing={{ xs: 5, md: 10 }}
@@ -365,7 +277,6 @@ if (product.images && product.images.length > 0) {
                 />
               </Grid>
 
-              {/* Chỉnh sửa hình ảnh */}
               <Grid item xs={12}>
                 <input accept="image/*" style={{ display: 'none' }} id="upload-images" multiple type="file" onChange={handleImageChange} />
                 <label htmlFor="upload-images">
@@ -375,7 +286,7 @@ if (product.images && product.images.length > 0) {
                   {product.images.map((img, index) => (
                     <div key={index}>
                       <img
-                        src={`http://localhost:3000/${img}`}
+                        src={img} // Sử dụng trực tiếp tên file để demo
                         alt={`Product ${index}`}
                         style={{ width: 150, height: 150, objectFit: 'cover' }}
                       />
@@ -387,15 +298,12 @@ if (product.images && product.images.length > 0) {
                         x
                       </Button>
                     </div>
-
-                    // <img key={index} src={`http://localhost:3000/${url}`} alt={`Product ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />
                   ))}
-                  {product.newImages.length > 0 && product.newImages.map((url, index) => (
-                    <img key={index} src={URL.createObjectURL(url)} alt={`Preview ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />
+                  {product.newImages.length > 0 && product.newImages.map((file, index) => (
+                    <img key={index} src={URL.createObjectURL(file)} alt={`Preview ${index}`} style={{ width: 150, height: 150, objectFit: 'cover' }} />
                   ))}
                 </Box>
               </Grid>
-
             </Grid>
           </form>
         </Box>
@@ -404,4 +312,4 @@ if (product.images && product.images.length > 0) {
   );
 };
 
-export default EditPage;
+export default EditProduct;
