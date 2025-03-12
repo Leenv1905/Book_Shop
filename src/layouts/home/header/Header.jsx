@@ -30,7 +30,7 @@ const CustomButton = styled(Button)(({ uppercase }) => ({
   },
 }));
 
-const Header = () => {
+const Header = ({ setShowLoginModal, isAuthenticated, setIsAuthenticated }) => {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const isMobile = useMediaQuery("(max-width:800px)");
   // Chuyển về chế độ mobile khi kích thước < 800 px
@@ -44,7 +44,7 @@ const Header = () => {
   return (
     <>
       {/* Header */}
-      <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "none", padding: '10px 0', color: "#272727" }}>
+      <AppBar position="static" sx={{ backgroundColor: "#fff", boxShadow: "none", padding: '5px 0', color: "#272727" }}>
         <Toolbar>
           {/* Logo */}
           <Logo src="/demo/images/main-logo.png" alt="Logo" />
@@ -60,7 +60,16 @@ const Header = () => {
 
             </Box>
           )}
-          {!isMobile && <UserItems />} {/* UserItems hiển thị ngoài cùng bên phải trên Desktop */}
+          {!isMobile && (
+            <UserItems
+              isAuthenticated={isAuthenticated}
+              setShowLoginModal={setShowLoginModal}
+              setIsAuthenticated={setIsAuthenticated}
+            />
+          )} {/* UserItems hiển thị ngoài cùng bên phải trên Desktop */}
+
+          {/* PHẢI TRUYỀN isAuthenticated, setShowLoginModal, setIsAuthenticated vào UserItems Ở CẢ MOBILE VÀ DESKTOP */}
+
           {/* Hamburger Icon for Mobile */}
           {isMobile && (
             <>
@@ -72,7 +81,14 @@ const Header = () => {
 
               <Box sx={{ position: 'absolute', right: 30, display: 'flex', alignItems: 'center' }}>
                 {/* Căn chỉnh UserItems ở góc phải trên Mobile, cần cho nằm trong 1 Box */}
-                <UserItems />
+
+                {/* User Items */}
+                <UserItems
+                  isAuthenticated={isAuthenticated}
+                  setIsAuthenticated={setIsAuthenticated}
+                  setShowLoginModal={setShowLoginModal}
+                />
+
               </Box>
             </>
           )}
