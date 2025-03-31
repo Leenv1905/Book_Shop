@@ -18,34 +18,34 @@ const AllProduct = () => {
     {
       id: 1,
       name: 'Product 1',
+      images: ['./demo/images/category2.jpg', 'image2.jpg'],
       productPrice: 100,
-      salePrice: 80,
-      discount: 20,
-      weight: 1,
-      salePerMonth: 10,
-      dateImport: '2023-01-01',
-      supplier: 'Supplier 1',
-      description: 'Description 1',
-      ingredient: 'Ingredient 1',
-      recipe: 'Recipe 1',
-      tags: 'Tag 1',
-      images: ['image1.jpg', 'image2.jpg'],
+      quantity: 80,
+      // discount: 20,
+      // weight: 1,
+      // salePerMonth: 10,
+      dateAdded: '2023-01-01',
+      author: 'author 1',
+      // description: 'Description 1',
+      // ingredient: 'Ingredient 1',
+      category: 'category 1',
+      status: 'status 1',
     },
     {
       id: 2,
       name: 'Product 2',
+      images: ['./demo/images/category2.jpg', 'image4.jpg'],
       productPrice: 200,
-      salePrice: 150,
-      discount: 25,
-      weight: 2,
-      salePerMonth: 20,
-      dateImport: '2023-02-01',
-      supplier: 'Supplier 2',
-      description: 'Description 2',
-      ingredient: 'Ingredient 2',
-      recipe: 'Recipe 2',
-      tags: 'Tag 2',
-      images: ['image3.jpg', 'image4.jpg'],
+      quantity: 150,
+      // discount: 25,
+      // weight: 2,
+      // salePerMonth: 20,
+      dateAdded: '2023-02-01',
+      author: 'author 2',
+      // description: 'Description 2',
+      // ingredient: 'Ingredient 2',
+      category: 'category 2',
+      status: 'status 2',
     },
   ]);
   const [openModal, setOpenModal] = useState(false);
@@ -72,26 +72,33 @@ const AllProduct = () => {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'name', headerName: 'Product Name', width: 130 },
-    { field: 'productPrice', headerName: 'Product Price', type: 'number', width: 130 },
-    { field: 'salePrice', headerName: 'Promotional Price', type: 'number', width: 130 },
-    { field: 'discount', headerName: 'Discount', type: 'number', width: 90 },
-    { field: 'weight', headerName: 'Weight', type: 'number', width: 90 },
-    { field: 'salePerMonth', headerName: 'Sale Per Month', type: 'number', width: 90 },
-    { field: 'dateImport', headerName: 'Date Import', width: 90 },
-    { field: 'supplier', headerName: 'Supplier', width: 90 },
-    { field: 'description', headerName: 'Description', width: 90 },
-    { field: 'ingredient', headerName: 'Ingredient', width: 90 },
-    { field: 'recipe', headerName: 'Recipe', width: 90 },
-    { field: 'tags', headerName: 'Hashtag', width: 90 },
+    { field: 'name', headerName: 'Product Name', width: 300 },
     {
       field: 'images',
       headerName: 'Images',
-      width: 150,
-      renderCell: (params) => params.row.images.map((url, index) => (
-        <img key={index} src={`http://localhost:3000/${url}`} alt={`Product ${index}`} style={{ width: 50, height: 50, objectFit: 'cover' }} />
-      )),
+      width: 100,
+      renderCell: (params) => {
+        const firstImage = params.row.images[0]; // Lấy ảnh đầu tiên trong mảng
+        return (
+          <img
+            src={`http://localhost:3000/${firstImage}`}
+            alt="Product"
+            style={{ width: 50, height: 50, objectFit: 'cover' }}
+          />
+        );
+      },
     },
+    { field: 'productPrice', headerName: 'Product Price', type: 'number', width: 130 },
+    { field: 'quantity', headerName: 'Quantity', type: 'number', width: 130 },
+    // { field: 'discount', headerName: 'Discount', type: 'number', width: 90 },
+    // { field: 'weight', headerName: 'Weight', type: 'number', width: 90 },
+    // { field: 'salePerMonth', headerName: 'Sale Per Month', type: 'number', width: 90 },
+    { field: 'dateAdded', headerName: 'Date Create', width: 200 },
+    { field: 'author', headerName: 'Author', width: 150 },
+    // { field: 'description', headerName: 'Description', width: 90 },
+    // { field: 'ingredient', headerName: 'Ingredient', width: 90 },
+    { field: 'category', headerName: 'Category', width: 150 },
+    { field: 'status', headerName: 'Status', width: 150 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -117,7 +124,7 @@ const AllProduct = () => {
           initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
           pageSizeOptions={[10, 20]}
           checkboxSelection
-          sx={{ border: 0 }}
+          sx={{ border: 0}}
         />
       </Paper>
 
