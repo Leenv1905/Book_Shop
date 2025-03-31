@@ -27,6 +27,11 @@ import AllProduct from "./admin/product/AllProduct";
 import AddProduct from "./admin/product/AddProduct";
 import EditProduct from "./admin/product/EditProduct";
 import ProductView from "./admin/product/ProductView";
+import OrderList from "./admin/order/OrderList";
+import OrderDetails from "./admin/order/OrderDetails";
+import UserList from "./admin/user/UserList";
+import EditUser from "./admin/user/EditUser";
+
 
 
 // ĐOẠN NÀY LÀ TEST
@@ -92,6 +97,12 @@ function App() {
             <Route path="addproduct" element={<AddProduct />} />
             <Route path="editproduct" element={<EditProduct />} />
             <Route path="productview" element={<ProductView />} />
+            <Route path="order" element={<OrderList />} />
+            <Route path="order/:orderId" element={<OrderDetails />} />
+            <Route path="user" element={<UserList />} />
+            <Route path="user/:userId" element={<EditUser />} />
+            <Route path="user/:userId/orders" element={<OrderList />} /> 
+            {/* Lấy danh sách đơn hàng theo id user */}
             {/* <Route path="about" element={<About />} /> */}
 
           </Route>

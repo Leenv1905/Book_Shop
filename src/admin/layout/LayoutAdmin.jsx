@@ -95,8 +95,8 @@ function LayoutAdmin() {
       <Divider />
 
       <List>
-        {['Dashboard', 'All Products', 'Add Product', 'User'].map((text, index) => {
-          const paths = ['/admin', '/admin/allproduct', '/admin/addproduct', '/admin/add-user'];
+        {['Dashboard', 'Products', 'Order', 'User'].map((text, index) => {
+          const paths = ['/admin', '/admin/allproduct', '/admin/order', '/admin/user'];
           return (
             <ListItem key={text} disablePadding>
               <ListItemButton
@@ -130,8 +130,8 @@ function LayoutAdmin() {
       <Divider />
 
       <List>
-        {['Supplier', 'Customer', 'Report'].map((text, index) => {
-          const paths2 = ['/admin', '/admin/customer'];
+        {['Supplier', 'Maketing', 'Review'].map((text, index) => {
+          const paths2 = ['/admin', '/admin/customer', '/admin/review'];
           return (
             <ListItem key={text} disablePadding>
               <ListItemButton
@@ -256,7 +256,7 @@ function LayoutAdmin() {
             transition: 'width 0.3s ease',
           }}
         >
-          <Toolbar />
+          {/* <Toolbar /> */}
           <Outlet />
         </Box>
       </Box>
