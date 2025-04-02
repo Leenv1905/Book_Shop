@@ -131,7 +131,7 @@ function LayoutAdmin() {
 
       <List>
         {['Supplier', 'Maketing', 'Review'].map((text, index) => {
-          const paths2 = ['/admin', '/admin/customer', '/admin/review'];
+          const paths2 = ['/admin/supplier', '/admin/discount', '/admin/review'];
           return (
             <ListItem key={text} disablePadding>
               <ListItemButton

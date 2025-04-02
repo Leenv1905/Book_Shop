@@ -31,6 +31,12 @@ import OrderList from "./admin/order/OrderList";
 import OrderDetails from "./admin/order/OrderDetails";
 import UserList from "./admin/user/UserList";
 import EditUser from "./admin/user/EditUser";
+import SupplierList from './admin/supplier/SupplierList';
+import AddSupplier from './admin/supplier/AddSupplier';
+import EditSupplier from './admin/supplier/EditSupplier';
+import DiscountList from './admin/maketing/DiscountList';
+import AddDiscount from './admin/maketing/AddDiscount';
+import EditDiscount from './admin/maketing/EditDiscount';
 
 
 
@@ -59,9 +65,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <Header
-        isAuthenticated={isAuthenticated}
-        setShowLoginModal={setShowLoginModal}
-        setIsAuthenticated={setIsAuthenticated}
+          isAuthenticated={isAuthenticated}
+          setShowLoginModal={setShowLoginModal}
+          setIsAuthenticated={setIsAuthenticated}
         />
         {/* <UserModal
           open={showLoginModal}
@@ -101,7 +107,13 @@ function App() {
             <Route path="order/:orderId" element={<OrderDetails />} />
             <Route path="user" element={<UserList />} />
             <Route path="user/:userId" element={<EditUser />} />
-            <Route path="user/:userId/orders" element={<OrderList />} /> 
+            <Route path="user/:userId/orders" element={<OrderList />} />
+            <Route path="supplier" element={<SupplierList />} />
+            <Route path="add-supplier" element={<AddSupplier />} />
+            <Route path="edit-supplier/:supplierId" element={<EditSupplier />} />
+            <Route path="discount" element={<DiscountList />} />
+            <Route path="add-discount" element={<AddDiscount />} />
+            <Route path="edit-discount/:discountId" element={<EditDiscount />} />
             {/* Lấy danh sách đơn hàng theo id user */}
             {/* <Route path="about" element={<About />} /> */}
 
@@ -119,7 +131,7 @@ function App() {
           }}
         /> */}
 
-<UserModal open={showLoginModal} onClose={() => setShowLoginModal(false)} onLoginSuccess={handleLoginSuccess} />
+        <UserModal open={showLoginModal} onClose={() => setShowLoginModal(false)} onLoginSuccess={handleLoginSuccess} />
 
       </BrowserRouter>
     </ThemeProvider>
