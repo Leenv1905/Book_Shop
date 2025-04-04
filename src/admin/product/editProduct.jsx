@@ -106,7 +106,7 @@ const EditProduct = () => {
           <form onSubmit={handleSubmit}>
             <Typography variant="h4" component="h1" gutterBottom color="#0c4646">EDIT PRODUCT FORM</Typography>
             <Button type="submit" variant="contained" color="success" sx={{ paddingY: 1.5, fontSize: '16px', margin: 3 }}>CONFIRM</Button>
-            <Button variant="contained" color="error" sx={{ paddingY: 1.5, fontSize: '16px', margin: 3 }} onClick={() => navigate('/admin/allproduct')}>CANCEL</Button>
+            <Button variant="contained" color="error" sx={{ paddingY: 1.5, fontSize: '16px', margin: 3 }} onClick={() => navigate('/admin/product')}>CANCEL</Button>
 
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 4, sm: 8, md: 12 }} alignItems="stretch" justifyContent="center">
               <Grid item size={{ xs: 2, sm: 4, md: 4 }}>
