@@ -1,304 +1,200 @@
 import React, { useState } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Container,
-  Card,
-  TextField,
+  Paper,
   Typography,
+  TextField,
   Button,
-  FormControlLabel,
-  Checkbox,
-  Icon,
-  RadioGroup,
+  Alert,
+  MenuItem,
+  Select,
+  InputLabel,
   FormControl,
-  FormLabel,
-  Radio,
-  Link
 } from '@mui/material';
-import Grid from '@mui/material/Grid2';
 
+// Danh sách vai trò có thể chọn
+const roleOptions = ['Admin', 'User', 'Moderator'];
 
-const theme = createTheme({
-  typography: {
-    fontFamily: 'Roboto, sans-serif',
-  },
-  palette: {
-    primary: {
-      main: '#3498db',
-    },
-    secondary: {
-      main: '#E1306C',
-    },
-  },
-});
+function CreateUser() {
+  const navigate = useNavigate();
 
-function CreateUserAdmin() {
-  const [fullname, setFullName] = useState('');
-  const [birthday, setBirthday] = useState('');
-  const [phonenumber, setPhoneNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [datejoin, setDateJoin] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmpassword, setConfirmPassword] = useState('');
-  const [status, setStatus] = useState('');
-  const [position, setPosition] = useState('');
-  const [gender, setGender] = useState('');
-
+  // State cho thông tin người dùng
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+    birthDay: '',
+    gender: '',
+    avata: '',
+    roles: [],
+  });
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  const handleSubmit = async (e) => {
+  // Xử lý thay đổi input
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUser((prev) => ({ ...prev, [name]: value }));
+    setError('');
+  };
+
+  // Xử lý thay đổi roles
+  const handleRolesChange = (e) => {
+    setUser((prev) => ({ ...prev, roles: e.target.value }));
+    setError('');
+  };
+
+  // Kiểm tra dữ liệu hợp lệ
+  const isValid = () => {
+    return (
+      user.name.trim() !== '' &&
+      user.email.trim() !== '' &&
+      user.phoneNumber.trim() !== '' &&
+      user.address.trim() !== '' &&
+      user.birthDay !== '' &&
+      user.gender !== '' &&
+      user.roles.length > 0
+    );
+  };
+
+  // Xử lý submit form
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (password !== confirmpassword) {
-      setError('Passwords do not match');
+
+    if (!isValid()) {
+      setError('Vui lòng điền đầy đủ thông tin');
       return;
     }
-    try {
-      const response = await axios.post('http://localhost:3000/phpm/CreateUserAdmin.php', { fullname, birthday, phonenumber, email, address, datejoin, username, password, status, position, gender });
-      if (response.data.success) {
-        setSuccess('Registration successful');
-        setError('');
-      } else {
-        setError(response.data.message);
-      }
-    } catch (error) {
-      console.error('Error registering:', error);
-      setError('An error occurred. Please try again later.');
-    }
+
+    const userData = {
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+      birthDay: user.birthDay,
+      gender: user.gender,
+      avata: user.avata || 'https://via.placeholder.com/40', // Giá trị mặc định nếu không nhập
+      roles: user.roles,
+    };
+    console.log('Thêm user:', userData);
+    navigate('/admin/users');
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <div style={{ backgroundImage: 'url(https://obi.vn/wp-content/uploads/2023/02/top-50-y-tuong-hinh-nen-trang-dep-tinh-khoi-cuc-ky-doc-dao_1.jpg)', height: '100vh', backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          height: '100%',
-          width: '100%',
-          background: 'rgba(227, 244, 251, 0.5)',
-        }}></div>
-        <Container maxWidth="lg" sx={{
-          backgroundColor: 'rgba(31, 81, 93, 0.1)',
-          padding: 5,
-          borderRadius: 2,
-          textAlign: 'center',
-          position: 'absolute',
-          top: '40%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 2,
-        }}>
-          <Typography variant="h4" component="h1" gutterBottom color="#0c4646">Form Create New User</Typography>
-          {error && <Typography variant="body2" color="error">{error}</Typography>}
-          {success && <Typography variant="body2" color="primary">{success}</Typography>}
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2} alignItems="stretch" justifyContent="center">
-              <Grid item xs={12} sm={6} >
-                <Grid marginBottom={1}>
-                  <TextField
-                    fullWidth
-                    label="Full Name"
-                    variant="outlined"
-                    margin="normal"
-                    placeholder="Lee Jung Ze"
-                    value={fullname}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </Grid>
-                <Grid marginBottom={1}>
-                  <TextField
-                    fullWidth
-                    label="Birthday"
-                    margin="normal"
-                    placeholder="Birthday User"
-                    variant="outlined"
-                    type="date"
-                    value={birthday}
-                    onChange={(e) => setBirthday(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    required
-                  />
-                </Grid>
-                <Grid>
-                  <TextField
-                    fullWidth
-                    label="Phone Number"
-                    margin="normal"
-                    placeholder="Phone Number Of Staff"
-                    variant="outlined"
-                    type="number"
-                    required
-                    value={phonenumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </Grid>
-              </Grid>
+    <Box sx={{ mt: 8 }}>
+      <Typography variant="h5" gutterBottom>
+        Thêm người dùng mới
+      </Typography>
+      <Paper sx={{ p: 3 }}>
+        <Box component="form" onSubmit={handleSubmit}>
+          {/* Hiển thị lỗi nếu có */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
+          {/* Các trường nhập liệu */}
+          <TextField
+            fullWidth
+            label="Tên"
+            name="name"
+            value={user.name}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            type="email"
+            value={user.email}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Số điện thoại"
+            name="phoneNumber"
+            value={user.phoneNumber}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Địa chỉ"
+            name="address"
+            value={user.address}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Ngày sinh"
+            name="birthDay"
+            type="date"
+            value={user.birthDay}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            margin="normal"
+            required
+          />
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Giới tính</InputLabel>
+            <Select
+              name="gender"
+              value={user.gender}
+              onChange={handleChange}
+              label="Giới tính"
+            >
+              <MenuItem value="Male">Nam</MenuItem>
+              <MenuItem value="Female">Nữ</MenuItem>
+              <MenuItem value="Other">Khác</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            fullWidth
+            label="URL Avatar"
+            name="avata"
+            value={user.avata}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Vai trò</InputLabel>
+            <Select
+              multiple
+              name="roles"
+              value={user.roles}
+              onChange={handleRolesChange}
+              label="Vai trò"
+            >
+              {roleOptions.map((role) => (
+                <MenuItem key={role} value={role}>
+                  {role}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-              <Grid item xs={12} sm={6}>
-                <Grid marginBottom={1}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    margin="normal"
-                    placeholder="LeeJungZe@example.com"
-                    variant="outlined"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </Grid>
-
-                <Grid marginBottom={1}>
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    margin="normal"
-                    variant="outlined"
-                    required
-                    placeholder="136 Quang Trung, Hai Ba Trung, Ha Noi"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                  />
-                </Grid>
-
-                <Grid>
-                  <TextField
-                    fullWidth
-                    label="Date Join Company"
-                    margin="normal"
-                    placeholder="Date Join Company"
-                    variant="outlined"
-                    type="date"
-                    value={datejoin}
-                    onChange={(e) => setDateJoin(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                    required
-                  />
-                </Grid>
-              </Grid>
-
-
-              <Grid item xs={12} sm={6}>
-                <Grid marginBottom={1}>
-                  <TextField
-                    fullWidth
-                    label="Username"
-                    placeholder="Administrator Login Name"
-                    variant="outlined"
-                    margin="normal"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </Grid>
-
-                <Grid marginBottom={1}>
-                  <TextField
-                    fullWidth
-                    type="password"
-                    label="Password"
-                    variant="outlined"
-                    margin="normal"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </Grid>
-
-                <Grid>
-                  <TextField
-                    fullWidth
-                    type="password"
-                    label="Confirm Password"
-                    variant="outlined"
-                    margin="normal"
-                    value={confirmpassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <Grid >
-
-                  <FormControl component="fieldset" margin="normal" required>
-                    <FormLabel component="legend" sx={{ color: 'black' }}>Status</FormLabel>
-                    <RadioGroup
-                      row
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                    >
-                      <FormControlLabel value="Active" control={<Radio />} label="Active" />
-                      <FormControlLabel value="Suspended" control={<Radio />} label="Holiday" />
-                      <FormControlLabel value="Canceled" control={<Radio />} label="Block" />
-                    </RadioGroup>
-                  </FormControl>
-                </Grid>
-
-                <Grid >
-                  <FormControl component="fieldset" margin="normal" required>
-                    <FormLabel component="legend" sx={{ color: 'black' }}>Company Position</FormLabel>
-                    <RadioGroup
-                      row
-                      value={position}
-                      onChange={(e) => setPosition(e.target.value)}
-                    >
-                      <FormControlLabel value="Manager" control={<Radio />} label="Manager" />
-                      <FormControlLabel value="IT" control={<Radio />} label="IT" />
-                      <FormControlLabel value="Staff" control={<Radio />} label="Staff" />
-                      <FormControlLabel value="Accountant" control={<Radio />} label="Accountant" />
-                    </RadioGroup>
-                  </FormControl>
-                </Grid>
-
-                <Grid>
-                  <FormControl component="fieldset" margin="normal" required>
-                    <FormLabel component="legend" sx={{ color: 'black' }}>Gender</FormLabel>
-                    <RadioGroup
-                      row
-                      value={gender}
-                      onChange={(e) => setGender(e.target.value)}
-                    >
-                      <FormControlLabel value="Male" control={<Radio />} label="Male" />
-                      <FormControlLabel value="Female" control={<Radio />} label="Female" />
-                      <FormControlLabel value="preferNotToSay" control={<Radio />} label="Prefer not to say" />
-                    </RadioGroup>
-                  </FormControl>
-                </Grid>
-
-              </Grid>
-            </Grid>
-
-
-            <Grid item xs={12} sm={6} container justifyContent="center" alignItems="center">
-
-
-              <Button
-                type="submit"
-                // fullWidth
-                variant="contained"
-                color="primary"
-                sx={{ paddingY: 1.5, fontSize: '16px', mt: 2 }}
-              >
-                Create User
-              </Button>
-
-            </Grid>
-
-
-          </form>
-        </Container>
-      </div>
-    </ThemeProvider>
+          {/* Nút submit */}
+          <Box sx={{ mt: 3 }}>
+            <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
+              Thêm
+            </Button>
+            <Button variant="outlined" onClick={() => navigate('/admin/users')}>
+              Hủy
+            </Button>
+          </Box>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
 
-export default CreateUserAdmin;
+export default CreateUser;

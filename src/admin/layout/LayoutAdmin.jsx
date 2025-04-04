@@ -50,6 +50,8 @@ function LayoutAdmin() {
     <ShoppingCartCheckoutOutlinedIcon />,
     <ShoppingBagOutlinedIcon />,
     <SupportAgentOutlinedIcon />,
+    <SupportAgentOutlinedIcon />,
+
   ];
 
   const icons2 = [
@@ -95,8 +97,8 @@ function LayoutAdmin() {
       <Divider />
 
       <List>
-        {['Dashboard', 'Products', 'Order', 'User'].map((text, index) => {
-          const paths = ['/admin', '/admin/allproduct', '/admin/order', '/admin/user'];
+        {['Dashboard', 'Products', 'Ware House', 'Order', 'User'].map((text, index) => {
+          const paths = ['/admin', '/admin/product', '/admin/import-products', '/admin/order', '/admin/user'];
           return (
             <ListItem key={text} disablePadding>
               <ListItemButton

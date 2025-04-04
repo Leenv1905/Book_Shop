@@ -23,12 +23,13 @@ import CustomerProfile from "./pages/customer/CustomerProfile";
 
 // ĐOẠN NÀY LÀ GIAO DIỆN ADMIN
 import LayoutAdmin from "./admin/layout/LayoutAdmin";
-import AllProduct from "./admin/product/AllProduct";
+import ProductList from "./admin/product/ProductList";
 import AddProduct from "./admin/product/AddProduct";
 import EditProduct from "./admin/product/EditProduct";
 import ProductView from "./admin/product/ProductView";
 import OrderList from "./admin/order/OrderList";
 import OrderDetails from "./admin/order/OrderDetails";
+import CreateUser from "./admin/user/CreateUser";
 import UserList from "./admin/user/UserList";
 import EditUser from "./admin/user/EditUser";
 import SupplierList from './admin/supplier/SupplierList';
@@ -37,8 +38,12 @@ import EditSupplier from './admin/supplier/EditSupplier';
 import DiscountList from './admin/maketing/DiscountList';
 import AddDiscount from './admin/maketing/AddDiscount';
 import EditDiscount from './admin/maketing/EditDiscount';
-
-
+import ReviewList from './admin/review/ReviewList';
+import AddReview from './admin/review/AddReview';
+import EditReview from './admin/review/EditReview';
+import ImportProductList from './admin/import-product/ImportProductList';
+import CreateImportProduct from './admin/import-product/CreateImportProduct';
+import EditImportProduct from './admin/import-product/EditImportProduct';
 
 // ĐOẠN NÀY LÀ TEST
 
@@ -98,22 +103,32 @@ function App() {
           </Route>
 
           <Route path="/admin" element={<LayoutAdmin />}>
-            <Route index element={<AllProduct />} />
-            <Route path="allproduct" element={<AllProduct />} />
+            <Route index element={<ProductList />} />
+            {/* Route cho Product */}
+            <Route path="product" element={<ProductList />} />
             <Route path="addproduct" element={<AddProduct />} />
             <Route path="editproduct" element={<EditProduct />} />
             <Route path="productview" element={<ProductView />} />
+
             <Route path="order" element={<OrderList />} />
             <Route path="order/:orderId" element={<OrderDetails />} />
+            {/* Route cho User */}
             <Route path="user" element={<UserList />} />
-            <Route path="user/:userId" element={<EditUser />} />
-            <Route path="user/:userId/orders" element={<OrderList />} />
+            <Route path="create-user" element={<CreateUser />} />
+            <Route path="edit-user/:userId" element={<EditUser />} />
             <Route path="supplier" element={<SupplierList />} />
             <Route path="add-supplier" element={<AddSupplier />} />
             <Route path="edit-supplier/:supplierId" element={<EditSupplier />} />
             <Route path="discount" element={<DiscountList />} />
             <Route path="add-discount" element={<AddDiscount />} />
             <Route path="edit-discount/:discountId" element={<EditDiscount />} />
+            <Route path="review" element={<ReviewList />} />
+            <Route path="add-review" element={<AddReview />} />
+            <Route path="edit-review/:reviewId" element={<EditReview />} />
+            {/* Route cho ImportProduct */}
+            <Route path="/admin/import-products" element={<ImportProductList />} />
+            <Route path="/admin/create-import-product" element={<CreateImportProduct />} />
+            <Route path="/admin/edit-import-product/:importId" element={<EditImportProduct />} />
             {/* Lấy danh sách đơn hàng theo id user */}
             {/* <Route path="about" element={<About />} /> */}
 

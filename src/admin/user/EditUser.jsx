@@ -5,17 +5,17 @@ import {
   Paper,
   Typography,
   TextField,
-  MenuItem,
   Button,
-  Avatar,
-  FormControl,
-  InputLabel,
+  Alert,
+  MenuItem,
   Select,
+  InputLabel,
+  FormControl,
 } from '@mui/material';
 
-// Dữ liệu mẫu (thay bằng API thực tế)
-const userData = {
-  1: {
+// Dữ liệu mẫu
+const users = [
+  {
     id: 1,
     name: 'User 1',
     email: 'user1@gmail.com',
@@ -23,57 +23,91 @@ const userData = {
     address: '123 Đường A, TP.HCM',
     birthDay: '1990-01-01',
     gender: 'Male',
-    password: 'password123',
     avata: 'https://via.placeholder.com/40',
     roles: ['Admin'],
   },
-  2: {
+  {
     id: 2,
     name: 'User 2',
     email: 'user2@gmail.com',
     phoneNumber: '0909876543',
     address: '456 Đường B, Hà Nội',
-    birthDay: '1995-05-10',
+    birthDay: '1995-05-05',
     gender: 'Female',
-    password: 'password456',
     avata: 'https://via.placeholder.com/40',
     roles: ['User'],
   },
-};
+];
+
+// Danh sách vai trò có thể chọn
+const roleOptions = ['Admin', 'User', 'Moderator'];
 
 function EditUser() {
   const { userId } = useParams();
-//   useParams: Lấy userId từ URL để hiển thị thông tin người dùng tương ứng
   const navigate = useNavigate();
-  const initialUser = userData[userId] || {};
+  const initialUser = users.find((u) => u.id === parseInt(userId)) || {};
 
+  // State cho thông tin người dùng
   const [user, setUser] = useState({
-    // useState: Quản lý trạng thái form với các trường của bảng User
     name: initialUser.name || '',
     email: initialUser.email || '',
     phoneNumber: initialUser.phoneNumber || '',
     address: initialUser.address || '',
     birthDay: initialUser.birthDay || '',
     gender: initialUser.gender || '',
-    password: initialUser.password || '',
     avata: initialUser.avata || '',
-    roles: initialUser.roles || [], // mảng để chứa nhiều vai trò
+    roles: initialUser.roles || [],
   });
+  const [error, setError] = useState('');
 
+  // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
+    setError('');
   };
 
+  // Xử lý thay đổi roles
   const handleRolesChange = (e) => {
     setUser((prev) => ({ ...prev, roles: e.target.value }));
+    setError('');
   };
 
+  // Kiểm tra dữ liệu hợp lệ
+  const isValid = () => {
+    return (
+      user.name.trim() !== '' &&
+      user.email.trim() !== '' &&
+      user.phoneNumber.trim() !== '' &&
+      user.address.trim() !== '' &&
+      user.birthDay !== '' &&
+      user.gender !== '' &&
+      user.roles.length > 0
+    );
+  };
+
+  // Xử lý submit form
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Gọi API để cập nhật user tại đây
-    console.log('Updated user:', user);
-    navigate('/admin/add-user'); // Quay lại danh sách sau khi lưu
+
+    if (!isValid()) {
+      setError('Vui lòng điền đầy đủ thông tin');
+      return;
+    }
+
+    const userData = {
+      id: parseInt(userId),
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      address: user.address,
+      birthDay: user.birthDay,
+      gender: user.gender,
+      avata: user.avata || 'https://via.placeholder.com/40',
+      roles: user.roles,
+    };
+    console.log('Cập nhật user:', userData);
+    navigate('/admin/user');
   };
 
   if (!initialUser.id) {
@@ -91,7 +125,14 @@ function EditUser() {
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Box component="form" onSubmit={handleSubmit}>
-          <Avatar src={user.avata} alt={user.name} sx={{ width: 60, height: 60, mb: 2 }} />
+          {/* Hiển thị lỗi nếu có */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+
+          {/* Các trường nhập liệu */}
           <TextField
             fullWidth
             label="Tên"
@@ -99,14 +140,17 @@ function EditUser() {
             value={user.name}
             onChange={handleChange}
             margin="normal"
+            required
           />
           <TextField
             fullWidth
             label="Email"
             name="email"
+            type="email"
             value={user.email}
             onChange={handleChange}
             margin="normal"
+            required
           />
           <TextField
             fullWidth
@@ -115,6 +159,7 @@ function EditUser() {
             value={user.phoneNumber}
             onChange={handleChange}
             margin="normal"
+            required
           />
           <TextField
             fullWidth
@@ -123,6 +168,7 @@ function EditUser() {
             value={user.address}
             onChange={handleChange}
             margin="normal"
+            required
           />
           <TextField
             fullWidth
@@ -131,63 +177,54 @@ function EditUser() {
             type="date"
             value={user.birthDay}
             onChange={handleChange}
-            margin="normal"
             InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            fullWidth
-            select
-            label="Giới tính"
-            name="gender"
-            value={user.gender}
-            onChange={handleChange}
             margin="normal"
-          >
-            <MenuItem value="Male">Nam</MenuItem>
-            <MenuItem value="Female">Nữ</MenuItem>
-            <MenuItem value="Other">Khác</MenuItem>
-          </TextField>
-          <TextField
-            fullWidth
-            label="Mật khẩu"
-            name="password"
-            type="password"
-            value={user.password}
-            onChange={handleChange}
-            margin="normal"
+            required
           />
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Giới tính</InputLabel>
+            <Select
+              name="gender"
+              value={user.gender}
+              onChange={handleChange}
+              label="Giới tính"
+            >
+              <MenuItem value="Male">Nam</MenuItem>
+              <MenuItem value="Female">Nữ</MenuItem>
+              <MenuItem value="Other">Khác</MenuItem>
+            </Select>
+          </FormControl>
           <TextField
             fullWidth
-            label="URL ảnh đại diện"
+            label="URL Avatar"
             name="avata"
             value={user.avata}
             onChange={handleChange}
             margin="normal"
           />
-          <FormControl fullWidth margin="normal">
-          {/* Dùng Select multiple để chọn nhiều vai trò */}
+          <FormControl fullWidth margin="normal" required>
             <InputLabel>Vai trò</InputLabel>
             <Select
               multiple
               name="roles"
               value={user.roles}
               onChange={handleRolesChange}
-              renderValue={(selected) => selected.join(', ')}
+              label="Vai trò"
             >
-              <MenuItem value="Admin">Admin</MenuItem>
-              <MenuItem value="User">User</MenuItem>
-              <MenuItem value="Moderator">Moderator</MenuItem>
+              {roleOptions.map((role) => (
+                <MenuItem key={role} value={role}>
+                  {role}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
-          <Box sx={{ mt: 2 }}>
+          {/* Nút submit */}
+          <Box sx={{ mt: 3 }}>
             <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
               Lưu
             </Button>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/admin/add-user')}
-            >
+            <Button variant="outlined" onClick={() => navigate('/admin/users')}>
               Hủy
             </Button>
           </Box>
