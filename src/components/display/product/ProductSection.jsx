@@ -1,4 +1,3 @@
-// components/ProductSection.js
 import React from "react";
 import { Box, Container } from "@mui/material";
 import ProductGroup from "./ProductGroup";
@@ -10,40 +9,39 @@ const ProductSection = () => {
     {
       title: "Featured",
       products: [
-        { image: "/demo/images/product-item2.png", title: "Echoes AAAAAAAAAAAAA of the Ancients", author: "Lauren Asher", rating: 5, price: 870, originalPrice:1200 },
-        { image: "/demo/images/product-item1.png", title: "The Midnight Garden", author: "Lauren Asher", rating: 4.5, price: 750 },
-        { image: "/demo/images/product-item3.png", title: "Shadow of the Serpent", author: "Lauren Asher", rating: 4, price: 800 },
+        { id: "product-1", image: "/demo/images/product-item2.png", title: "Echoes AAAAAAAAAAAAA of the Ancients", author: "Lauren Asher", rating: 5, price: 870, originalPrice: 1200 },
+        { id: "product-2", image: "/demo/images/product-item1.png", title: "The Midnight Garden", author: "Lauren Asher", rating: 4.5, price: 750 },
+        { id: "product-3", image: "/demo/images/product-item3.png", title: "Shadow of the Serpent", author: "Lauren Asher", rating: 4, price: 800 },
       ],
     },
     {
       title: "Latest items",
       products: [
-        { image: "/demo/images/product-item4.png", title: "Whispering Winds", author: "Lauren Asher", rating: 5, price: 870 },
-        { image: "/demo/images/product-item5.png", title: "The Celestial Tapestry", author: "Lauren Asher", rating: 4.5, price: 780 },
-        { image: "/demo/images/product-item6.png", title: "Legends of the Lost", author: "Lauren Asher", rating: 4, price: 720 },
+        { id: "product-4", image: "/demo/images/product-item4.png", title: "Whispering Winds", author: "Lauren Asher", rating: 5, price: 870 },
+        { id: "product-5", image: "/demo/images/product-item5.png", title: "The Celestial Tapestry", author: "Lauren Asher", rating: 4.5, price: 780 },
+        { id: "product-6", image: "/demo/images/product-item6.png", title: "Legends of the Lost", author: "Lauren Asher", rating: 4, price: 720 },
       ],
     },
     {
       title: "Best reviewed",
       products: [
-        { image: "/demo/images/product-item7.png", title: "The Timeless Voyage", author: "Lauren Asher", rating: 5, price: 950 },
-        { image: "/demo/images/product-item8.png", title: "Whispers of Eternity", author: "Lauren Asher", rating: 4.8, price: 820 },
-        { image: "/demo/images/product-item9.png", title: "Echoes of Tomorrow", author: "Lauren Asher", rating: 4.7, price: 890 },
+        { id: "product-7", image: "/demo/images/product-item7.png", title: "The Timeless Voyage", author: "Lauren Asher", rating: 5, price: 950 },
+        { id: "product-8", image: "/demo/images/product-item8.png", title: "Whispers of Eternity", author: "Lauren Asher", rating: 4.8, price: 820 },
+        { id: "product-9", image: "/demo/images/product-item9.png", title: "Echoes of Tomorrow", author: "Lauren Asher", rating: 4.7, price: 890 },
       ],
     },
     {
       title: "On sale",
       products: [
-        { image: "/demo/images/product-item10.png", title: "Chronicles of the Lost City", author: "Lauren Asher", rating: 4.5, price: 690 },
-        { image: "/demo/images/product-item11.png", title: "The Starlit Path", author: "Lauren Asher", rating: 4.3, price: 670 },
-        { image: "/demo/images/product-item12.png", title: "Rays of the Dawn", author: "Lauren Asher", rating: 4.2, price: 640 },
+        { id: "product-10", image: "/demo/images/product-item10.png", title: "Chronicles of the Lost City", author: "Lauren Asher", rating: 4.5, price: 690 },
+        { id: "product-11", image: "/demo/images/product-item11.png", title: "The Starlit Path", author: "Lauren Asher", rating: 4.3, price: 670 },
+        { id: "product-12", image: "/demo/images/product-item12.png", title: "Rays of the Dawn", author: "Lauren Asher", rating: 4.2, price: 640 },
       ],
     },
   ];
 
   return (
-
- <Box sx={{ width: "100%", overflow: "hidden", py: 4 }}>
+    <Box sx={{ width: "100%", overflow: "hidden", py: 4 }}>
       <Grid
         container
         spacing={2}

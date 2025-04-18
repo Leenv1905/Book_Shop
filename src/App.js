@@ -7,6 +7,7 @@ import theme from './theme';
 import { BrowserRouter, Routes, Route, Router } from "react-router-dom";
 import ProtectedRoute from "./layouts/protected/ProtectedRoute"; // Quản lý trạng thái đăng nhập
 import UserModal from "./layouts/home/header/UserModal"; // Hiển thị UserModal
+import { CartProvider } from './components/action/CartContext'; // Component Context để quản lý giỏ hàng
 
 // ĐOẠN NÀY LÀ GIAO DIỆN NGƯỜI DÙNG
 import LayoutHome from "./layouts/home/LayoutHome";
@@ -68,6 +69,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <CartProvider>
       <BrowserRouter>
         <Header
           isAuthenticated={isAuthenticated}
@@ -149,6 +151,7 @@ function App() {
         <UserModal open={showLoginModal} onClose={() => setShowLoginModal(false)} onLoginSuccess={handleLoginSuccess} />
 
       </BrowserRouter>
+      </CartProvider>
     </ThemeProvider>
   );
 }

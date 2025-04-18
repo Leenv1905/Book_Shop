@@ -1,9 +1,19 @@
-// components/MiniProductCard.jsx
 import React from "react";
 import { Card, CardMedia, CardContent, Typography, Box, Rating } from "@mui/material";
 import CardActions from '../../action/CardActions';
 
-const MiniProductCard = ({ image, title, author, rating, price, originalPrice }) => {
+const MiniProductCard = ({ image, title, author, rating, price, originalPrice, id }) => {
+  // Tạo object product để truyền vào CardActions
+  const product = {
+    id,
+    name: title,
+    image,
+    author,
+    rating,
+    price,
+    originalPrice,
+  };
+
   return (
     <Card
       sx={{
@@ -25,6 +35,7 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice })
       {/* Các nút hành động CardActions */}
       <CardActions
         className="card-actions" // Đặt tên class để truyền vào CSS selectors
+        product={product} // Truyền object product vào CardActions
         sx={{
           position: 'absolute',
           top: '85%',
@@ -47,7 +58,6 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice })
         }}
         image={image}
         alt={title}
-
       />
       <CardContent sx={{ flex: "1" }}>
         <Typography variant="h6" component="div"
@@ -85,7 +95,6 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice })
           )}
           {/* <Typography variant="body1" color="primary" fontWeight="bold"> */}
           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F86D72', }}>
-
             ${price}
           </Typography>
         </Box>
