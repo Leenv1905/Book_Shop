@@ -1,10 +1,4 @@
-// TODO
-// API: Fetch dữ liệu từ /api/discounts thay vì dùng dữ liệu mẫu.
-// Xác nhận xóa: Thêm dialog xác nhận trước khi xóa bằng Dialog của MUI.
-// Phân trang: Nếu danh sách dài, thêm TablePagination để phân trang.
-// Tùy chỉnh giao diện: Thêm màu nền khác cho dòng đang mở rộng hoặc thêm icon mở/đóng.
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -18,47 +12,63 @@ import {
   Typography,
   Button,
   Collapse,
+  TablePagination,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  IconButton,
 } from '@mui/material';
-
-// Dữ liệu mẫu cho Product
-const products = [
-  { id: 1, name: 'Áo thun', stock: 100, originalPrice: 50000 },
-  { id: 2, name: 'Quần jeans', stock: 50, originalPrice: 120000 },
-  { id: 3, name: 'Giày thể thao', stock: 20, originalPrice: 200000 },
-];
-
-// Dữ liệu mẫu cho Discount
-const discounts = [
-  {
-    id: 1,
-    dateStart: '2025-03-10',
-    dateEnd: '2025-03-20',
-    products: [
-      { productId: 1, salePrice: 20000, quantity: 10 },
-      { productId: 2, salePrice: 50000, quantity: 5 },
-    ],
-  },
-  {
-    id: 2,
-    dateStart: '2025-03-15',
-    dateEnd: '2025-03-25',
-    products: [
-      { productId: 3, salePrice: 150000, quantity: 8 },
-    ],
-  },
-];
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import axios from 'axios';
 
 function DiscountList() {
   const navigate = useNavigate();
-  const [expandedId, setExpandedId] = useState(null); // State để theo dõi dòng đang mở rộng
+  const [expandedId, setExpandedId] = useState(null);
+  const [discounts, setDiscounts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  // Fetch danh sách sản phẩm và mã giảm giá
+  useEffect(() => {
+    axios
+      .get('http://localhost:6868/api/product')
+      .then((response) => {
+        setProducts(response.data.map((p) => ({
+          id: p.id,
+          name: p.name,
+          stock: p.quantity,
+          originalPrice: p.price,
+        })));
+      })
+      .catch((err) => console.error('Lỗi khi lấy sản phẩm:', err));
+
+    axios
+      .get('http://localhost:6868/api/discounts')
+      .then((response) => {
+        setDiscounts(response.data);
+      })
+      .catch((err) => console.error('Lỗi khi lấy mã giảm giá:', err));
+  }, []);
 
   const handleEditDiscount = (discountId) => {
     navigate(`/admin/edit-discount/${discountId}`);
   };
 
-  const handleDeleteDiscount = (discountId) => {
-    console.log(`Xóa discount với ID: ${discountId}`);
-    // Gọi API để xóa discount tại đây
+  const handleDeleteDiscount = async () => {
+    try {
+      await axios.delete(`http://localhost:6868/api/discounts/${deleteId}`);
+      setDiscounts((prev) => prev.filter((d) => d.id !== deleteId));
+      setOpenDialog(false);
+      setDeleteId(null);
+    } catch (err) {
+      console.error('Lỗi khi xóa mã giảm giá:', err);
+    }
   };
 
   const handleAddDiscount = () => {
@@ -66,7 +76,26 @@ function DiscountList() {
   };
 
   const handleRowClick = (id) => {
-    setExpandedId(expandedId === id ? null : id); // Mở rộng hoặc thu gọn khi nhấp
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  const handleOpenDialog = (id) => {
+    setDeleteId(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setDeleteId(null);
   };
 
   return (
@@ -88,86 +117,122 @@ function DiscountList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {discounts.map((discount) => (
-              <React.Fragment key={discount.id}>
-                <TableRow
-                  onClick={() => handleRowClick(discount.id)}
-                  sx={{ cursor: 'pointer', '&:hover': { backgroundColor: '#f5f5f5' } }}
-                >
-                  <TableCell>{discount.id}</TableCell>
-                  <TableCell>{discount.dateStart}</TableCell>
-                  <TableCell>{discount.dateEnd}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Ngăn sự kiện click row
-                        handleEditDiscount(discount.id);
-                      }}
-                      sx={{ mr: 1 }}
-                    >
-                      Sửa
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Ngăn sự kiện click row
-                        handleDeleteDiscount(discount.id);
-                      }}
-                    >
-                      Xóa
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
-                    <Collapse in={expandedId === discount.id} timeout="auto" unmountOnExit>
-                      <Box sx={{ margin: 1 }}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Chi tiết sản phẩm
-                        </Typography>
-                        <Table size="small">
-                          <TableHead>
-                            <TableRow>
-                              <TableCell>ID sản phẩm</TableCell>
-                              <TableCell>Tên sản phẩm</TableCell>
-                              <TableCell>Tồn kho</TableCell>
-                              <TableCell>Giá gốc (VNĐ)</TableCell>
-                              <TableCell>Giá khuyến mại (VNĐ)</TableCell>
-                              <TableCell>Số lượng</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {discount.products.map((item) => {
-                              const product = products.find((p) => p.id === item.productId);
-                              return (
-                                <TableRow key={item.productId}>
-                                  <TableCell>{item.productId}</TableCell>
-                                  <TableCell>{product ? product.name : 'Không xác định'}</TableCell>
-                                  <TableCell>{product ? product.stock : '-'}</TableCell>
-                                  <TableCell>
-                                    {product ? product.originalPrice.toLocaleString() : '-'}
-                                  </TableCell>
-                                  <TableCell>{item.salePrice.toLocaleString()}</TableCell>
-                                  <TableCell>{item.quantity}</TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
+            {discounts
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((discount) => (
+                <React.Fragment key={discount.id}>
+                  <TableRow
+                    onClick={() => handleRowClick(discount.id)}
+                    sx={{
+                      cursor: 'pointer',
+                      backgroundColor: expandedId === discount.id ? '#e3f2fd' : 'inherit',
+                      '&:hover': { backgroundColor: '#f5f5f5' },
+                    }}
+                  >
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {discount.id}
+                        <IconButton size="small">
+                          {expandedId === discount.id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        </IconButton>
                       </Box>
-                    </Collapse>
-                  </TableCell>
-                </TableRow>
-              </React.Fragment>
-            ))}
+                    </TableCell>
+                    <TableCell>{discount.dateStart}</TableCell>
+                    <TableCell>{discount.dateEnd}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditDiscount(discount.id);
+                        }}
+                        sx={{ mr: 1 }}
+                      >
+                        Sửa
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenDialog(discount.id);
+                        }}
+                      >
+                        Xóa
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={4}>
+                      <Collapse in={expandedId === discount.id} timeout="auto" unmountOnExit>
+                        <Box sx={{ margin: 1 }}>
+                          <Typography variant="subtitle1" gutterBottom>
+                            Chi tiết sản phẩm
+                          </Typography>
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>ID sản phẩm</TableCell>
+                                <TableCell>Tên sản phẩm</TableCell>
+                                <TableCell>Tồn kho</TableCell>
+                                <TableCell>Giá gốc (VNĐ)</TableCell>
+                                <TableCell>Giá khuyến mại (VNĐ)</TableCell>
+                                <TableCell>Số lượng</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              <TableRow>
+                                <TableCell>{discount.product.id}</TableCell>
+                                <TableCell>{discount.product.name}</TableCell>
+                                <TableCell>{discount.product.quantity}</TableCell>
+                                <TableCell>{discount.product.price.toLocaleString()}</TableCell>
+                                <TableCell>{discount.salePrice.toLocaleString()}</TableCell>
+                                <TableCell>{discount.quantity}</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={discounts.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Xác nhận xóa</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn có chắc muốn xóa mã giảm giá này? Hành động này không thể hoàn tác.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Hủy
+          </Button>
+          <Button onClick={handleDeleteDiscount} color="error" autoFocus>
+            Xóa
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
