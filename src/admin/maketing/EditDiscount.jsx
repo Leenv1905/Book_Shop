@@ -1,8 +1,4 @@
-// TODO
-// Kiểm tra giá khuyến mại: Thêm logic để salePrice không vượt quá originalPrice.
-// API: Fetch dữ liệu discount từ /api/discounts/:id và gửi dữ liệu cập nhật qua PUT.
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -19,55 +15,74 @@ import {
   Alert,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-
-// Dữ liệu mẫu cho Product
-const products = [
-  { id: 1, name: 'Áo thun', stock: 100, originalPrice: 50000 },
-  { id: 2, name: 'Quần jeans', stock: 50, originalPrice: 120000 },
-  { id: 3, name: 'Giày thể thao', stock: 20, originalPrice: 200000 },
-];
-
-// Dữ liệu mẫu cho Discount
-const discountData = {
-  1: {
-    id: 1,
-    dateStart: '2025-03-10',
-    dateEnd: '2025-03-20',
-    products: [
-      { productId: 1, salePrice: 20000, quantity: 10 },
-      { productId: 2, salePrice: 50000, quantity: 5 },
-    ],
-  },
-  2: {
-    id: 2,
-    dateStart: '2025-03-15',
-    dateEnd: '2025-03-25',
-    products: [
-      { productId: 3, salePrice: 150000, quantity: 8 },
-    ],
-  },
-};
+import axios from 'axios';
 
 function EditDiscount() {
   const { discountId } = useParams();
   const navigate = useNavigate();
-  const initialDiscount = discountData[discountId] || {};
-
-  // State cho ngày bắt đầu và kết thúc
-  const [dateStart, setDateStart] = useState(initialDiscount.dateStart || '');
-  const [dateEnd, setDateEnd] = useState(initialDiscount.dateEnd || '');
+  const [dateStart, setDateStart] = useState('');
+  const [dateEnd, setDateEnd] = useState('');
   const [error, setError] = useState('');
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [initialDiscount, setInitialDiscount] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // State cho danh sách sản phẩm đã chọn
-  const [selectedProducts, setSelectedProducts] = useState(
-    initialDiscount.products?.map((p) => ({
-      ...products.find((prod) => prod.id === p.productId),
-      salePrice: p.salePrice.toString(),
-      quantity: p.quantity.toString(),
-    })) || []
-  );
+  // Fetch dữ liệu sản phẩm và mã giảm giá
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get('http://localhost:6868/api/product')
+      .then((response) => {
+        setProducts(
+          response.data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            stock: p.quantity,
+            originalPrice: p.price,
+          }))
+        );
+      })
+      .catch((err) => {
+        setError('Không thể tải danh sách sản phẩm');
+        console.error('Lỗi khi lấy sản phẩm:', err);
+      });
 
-  // Xử lý thay đổi ngày
+    axios
+      .get(`http://localhost:6868/api/discounts/${discountId}`)
+      .then((response) => {
+        const discount = response.data;
+        setInitialDiscount(discount);
+        setDateStart(discount.dateStart);
+        setDateEnd(discount.dateEnd);
+        setSelectedProducts([
+          {
+            id: discount.product.id,
+            name: discount.product.name,
+            stock: discount.product.quantity,
+            originalPrice: discount.product.price,
+            salePrice: discount.salePrice.toString(),
+            quantity: discount.quantity.toString(),
+          },
+        ]);
+      })
+      .catch((err) => {
+        if (err.response) {
+          if (err.response.status === 401) {
+            setError('Không được phép truy cập. Vui lòng kiểm tra cấu hình xác thực.');
+          } else if (err.response.status === 404) {
+            setError('Mã giảm giá không tồn tại.');
+          } else {
+            setError('Lỗi khi tải mã giảm giá.');
+          }
+        } else {
+          setError('Không thể kết nối đến server.');
+        }
+        console.error('Lỗi khi lấy mã giảm giá:', err);
+      })
+      .finally(() => setLoading(false));
+  }, [discountId]);
+
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     if (name === 'dateStart') setDateStart(value);
@@ -75,17 +90,18 @@ function EditDiscount() {
     setError('');
   };
 
-  // Xử lý khi chọn sản phẩm từ Autocomplete
   const handleProductChange = (event, newValue) => {
-    if (newValue && !selectedProducts.some((p) => p.id === newValue.id)) {
-      setSelectedProducts((prev) => [
-        ...prev,
-        { ...newValue, salePrice: '', quantity: '' },
-      ]);
+    if (newValue) {
+      setSelectedProducts([
+        {
+          ...newValue,
+          salePrice: selectedProducts[0]?.salePrice || '',
+          quantity: selectedProducts[0]?.quantity || '',
+        },
+      ]); // Chỉ cho phép một sản phẩm (tương thích với backend hiện tại)
     }
   };
 
-  // Xử lý thay đổi giá và số lượng cho từng sản phẩm
   const handleProductDetailChange = (id, field, value) => {
     setSelectedProducts((prev) =>
       prev.map((product) => {
@@ -93,7 +109,17 @@ function EditDiscount() {
           if (field === 'quantity') {
             const quantity = parseInt(value) || 0;
             if (quantity > product.stock) {
-              return { ...product, quantity: product.stock };
+              setError(`Số lượng không được vượt quá tồn kho (${product.stock})`);
+              return { ...product, quantity: product.stock.toString() };
+            }
+          }
+          if (field === 'salePrice') {
+            const salePrice = parseFloat(value) || 0;
+            if (salePrice > product.originalPrice) {
+              setError(
+                `Giá khuyến mại không được vượt quá giá gốc (${product.originalPrice.toLocaleString()} VNĐ)`
+              );
+              return { ...product, salePrice: product.originalPrice.toString() };
             }
           }
           return { ...product, [field]: value };
@@ -103,12 +129,11 @@ function EditDiscount() {
     );
   };
 
-  // Xử lý xóa sản phẩm khỏi danh sách
   const handleRemoveProduct = (id) => {
-    setSelectedProducts((prev) => prev.filter((product) => product.id !== id));
+    setSelectedProducts([]);
+    setError('');
   };
 
-  // Kiểm tra ngày hợp lệ
   const isDateValid = () => {
     if (!dateStart || !dateEnd) return false;
     const start = new Date(dateStart);
@@ -117,15 +142,13 @@ function EditDiscount() {
     return diffInDays >= 1;
   };
 
-  // Kiểm tra dữ liệu sản phẩm hợp lệ
   const isProductsValid = () => {
     return selectedProducts.every(
       (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
     );
   };
 
-  // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isDateValid()) {
@@ -134,27 +157,51 @@ function EditDiscount() {
     }
 
     if (!isProductsValid()) {
-      setError('Vui lòng điền đầy đủ giá và số lượng khuyến mại cho tất cả sản phẩm');
+      setError('Vui lòng điền đầy đủ giá và số lượng khuyến mại cho sản phẩm');
       return;
     }
 
     const discountData = {
+      id: parseInt(discountId),
+      product: { id: selectedProducts[0].id },
+      salePrice: parseFloat(selectedProducts[0].salePrice),
+      quantity: parseInt(selectedProducts[0].quantity),
+      dateCreate: initialDiscount.dateCreate,
       dateStart,
       dateEnd,
-      products: selectedProducts.map(({ id, salePrice, quantity }) => ({
-        productId: id,
-        salePrice: parseFloat(salePrice) || 0,
-        quantity: parseInt(quantity) || 0,
-      })),
     };
-    console.log('Cập nhật discount:', discountData);
-    navigate('/admin/discount');
+
+    try {
+      await axios.put(`http://localhost:6868/api/discounts/${discountId}`, discountData);
+      navigate('/admin/discount');
+    } catch (err) {
+      if (err.response) {
+        if (err.response.status === 401) {
+          setError('Không được phép cập nhật. Vui lòng kiểm tra cấu hình xác thực.');
+        } else if (err.response.status === 404) {
+          setError('Mã giảm giá không tồn tại.');
+        } else {
+          setError('Lỗi khi cập nhật mã giảm giá.');
+        }
+      } else {
+        setError('Không thể kết nối đến server.');
+      }
+      console.error('Lỗi khi cập nhật mã giảm giá:', err);
+    }
   };
 
-  if (!initialDiscount.id) {
+  if (loading) {
     return (
       <Box sx={{ mt: 8 }}>
-        <Typography variant="h6">Không tìm thấy mã giảm giá</Typography>
+        <Typography variant="h6">Đang tải...</Typography>
+      </Box>
+    );
+  }
+
+  if (!initialDiscount && error) {
+    return (
+      <Box sx={{ mt: 8 }}>
+        <Typography variant="h6">{error}</Typography>
       </Box>
     );
   }
@@ -166,7 +213,6 @@ function EditDiscount() {
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Khu vực chọn ngày */}
           <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
             <TextField
               label="Ngày bắt đầu"
@@ -190,18 +236,14 @@ function EditDiscount() {
             />
           </Box>
 
-          {/* Hiển thị lỗi nếu có */}
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          {/* Ô chọn sản phẩm */}
           <Autocomplete
-            options={products.filter(
-              (p) => !selectedProducts.some((sp) => sp.id === p.id)
-            )}
+            options={products}
             getOptionLabel={(option) => `${option.id} - ${option.name}`}
             filterOptions={(options, { inputValue }) => {
               const input = inputValue.toLowerCase();
@@ -213,14 +255,16 @@ function EditDiscount() {
             }}
             renderOption={(props, option) => (
               <li {...props}>
-                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc: {option.originalPrice.toLocaleString()} VNĐ)
+                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc:{' '}
+                {option.originalPrice.toLocaleString()} VNĐ)
               </li>
             )}
             onChange={handleProductChange}
+            value={selectedProducts[0] || null}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Thêm sản phẩm"
+                label="Chọn sản phẩm"
                 placeholder="Gõ ID hoặc tên sản phẩm"
                 margin="normal"
               />
@@ -228,7 +272,6 @@ function EditDiscount() {
             fullWidth
           />
 
-          {/* Bảng sản phẩm đã chọn */}
           {selectedProducts.length > 0 && (
             <TableContainer sx={{ mt: 2 }}>
               <Table>
@@ -259,7 +302,7 @@ function EditDiscount() {
                           }
                           size="small"
                           required
-                          inputProps={{ min: 0 }}
+                          inputProps={{ min: 0, max: product.originalPrice }}
                         />
                       </TableCell>
                       <TableCell>
@@ -291,7 +334,6 @@ function EditDiscount() {
             </TableContainer>
           )}
 
-          {/* Nút submit */}
           <Box sx={{ mt: 3 }}>
             <Button
               type="submit"

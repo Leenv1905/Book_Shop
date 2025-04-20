@@ -1,9 +1,4 @@
-// TODO
-// Kiểm tra giá khuyến mại: Thêm logic để salePrice không vượt quá originalPrice.
-// API: Fetch danh sách sản phẩm từ /api/products và gửi dữ liệu qua POST.
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -20,34 +15,41 @@ import {
   Alert,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
-
-// Dữ liệu mẫu cho Product (thêm originalPrice)
-const products = [
-  { id: 1, name: 'Áo thun', stock: 100, originalPrice: 50000 },
-  { id: 2, name: 'Quần jeans', stock: 50, originalPrice: 120000 },
-  { id: 3, name: 'Giày thể thao', stock: 20, originalPrice: 200000 },
-];
+import axios from 'axios';
 
 function AddDiscount() {
   const navigate = useNavigate();
-
-  // State cho ngày bắt đầu và kết thúc
   const [dateStart, setDateStart] = useState('');
   const [dateEnd, setDateEnd] = useState('');
-  const [error, setError] = useState(''); // State cho thông báo lỗi
-
-  // State cho danh sách sản phẩm đã chọn
+  const [error, setError] = useState('');
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [products, setProducts] = useState([]);
 
-  // Xử lý thay đổi ngày
+  // Fetch danh sách sản phẩm từ API
+  useEffect(() => {
+    axios
+      .get('http://localhost:6868/api/product')
+      .then((response) => {
+        setProducts(response.data.map((p) => ({
+          id: p.id,
+          name: p.name,
+          stock: p.quantity,
+          originalPrice: p.price,
+        })));
+      })
+      .catch((err) => {
+        setError('Không thể tải danh sách sản phẩm');
+        console.error(err);
+      });
+  }, []);
+
   const handleDateChange = (e) => {
     const { name, value } = e.target;
     if (name === 'dateStart') setDateStart(value);
     if (name === 'dateEnd') setDateEnd(value);
-    setError(''); // Xóa lỗi khi thay đổi ngày
+    setError('');
   };
 
-  // Xử lý khi chọn sản phẩm từ Autocomplete
   const handleProductChange = (event, newValue) => {
     if (newValue && !selectedProducts.some((p) => p.id === newValue.id)) {
       setSelectedProducts((prev) => [
@@ -57,7 +59,6 @@ function AddDiscount() {
     }
   };
 
-  // Xử lý thay đổi giá và số lượng cho từng sản phẩm
   const handleProductDetailChange = (id, field, value) => {
     setSelectedProducts((prev) =>
       prev.map((product) => {
@@ -65,7 +66,15 @@ function AddDiscount() {
           if (field === 'quantity') {
             const quantity = parseInt(value) || 0;
             if (quantity > product.stock) {
-              return { ...product, quantity: product.stock }; // Giới hạn quantity bằng stock
+              setError(`Số lượng không được vượt quá tồn kho (${product.stock})`);
+              return { ...product, quantity: product.stock };
+            }
+          }
+          if (field === 'salePrice') {
+            const salePrice = parseFloat(value) || 0;
+            if (salePrice > product.originalPrice) {
+              setError(`Giá khuyến mại không được vượt quá giá gốc (${product.originalPrice.toLocaleString()} VNĐ)`);
+              return { ...product, salePrice: product.originalPrice };
             }
           }
           return { ...product, [field]: value };
@@ -75,12 +84,11 @@ function AddDiscount() {
     );
   };
 
-  // Xử lý xóa sản phẩm khỏi danh sách
   const handleRemoveProduct = (id) => {
     setSelectedProducts((prev) => prev.filter((product) => product.id !== id));
+    setError('');
   };
 
-  // Kiểm tra ngày hợp lệ
   const isDateValid = () => {
     if (!dateStart || !dateEnd) return false;
     const start = new Date(dateStart);
@@ -89,15 +97,13 @@ function AddDiscount() {
     return diffInDays >= 1;
   };
 
-  // Kiểm tra dữ liệu sản phẩm hợp lệ
   const isProductsValid = () => {
     return selectedProducts.every(
       (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
     );
   };
 
-  // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isDateValid()) {
@@ -110,17 +116,26 @@ function AddDiscount() {
       return;
     }
 
-    const discountData = {
+    const discountData = selectedProducts.map(({ id, salePrice, quantity }) => ({
+      product: { id },
+      salePrice: parseFloat(salePrice),
+      quantity: parseInt(quantity),
+      dateCreate: new Date().toISOString().split('T')[0],
       dateStart,
       dateEnd,
-      products: selectedProducts.map(({ id, salePrice, quantity }) => ({
-        productId: id,
-        salePrice: parseFloat(salePrice) || 0,
-        quantity: parseInt(quantity) || 0,
-      })),
-    };
-    console.log('Thêm discount:', discountData);
-    navigate('/admin/discount');
+    }));
+
+    try {
+      await Promise.all(
+        discountData.map((data) =>
+          axios.post('http://localhost:6868/api/discounts', data)
+        )
+      );
+      navigate('/admin/discount');
+    } catch (err) {
+      setError('Lỗi khi thêm mã giảm giá');
+      console.error(err);
+    }
   };
 
   return (
@@ -130,7 +145,6 @@ function AddDiscount() {
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Khu vực chọn ngày */}
           <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
             <TextField
               label="Ngày bắt đầu"
@@ -154,14 +168,12 @@ function AddDiscount() {
             />
           </Box>
 
-          {/* Hiển thị lỗi nếu có */}
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {error}
             </Alert>
           )}
 
-          {/* Ô chọn sản phẩm */}
           <Autocomplete
             options={products.filter(
               (p) => !selectedProducts.some((sp) => sp.id === p.id)
@@ -192,7 +204,6 @@ function AddDiscount() {
             fullWidth
           />
 
-          {/* Bảng sản phẩm đã chọn */}
           {selectedProducts.length > 0 && (
             <TableContainer sx={{ mt: 2 }}>
               <Table>
@@ -223,7 +234,7 @@ function AddDiscount() {
                           }
                           size="small"
                           required
-                          inputProps={{ min: 0 }}
+                          inputProps={{ min: 0, max: product.originalPrice }}
                         />
                       </TableCell>
                       <TableCell>
@@ -255,7 +266,6 @@ function AddDiscount() {
             </TableContainer>
           )}
 
-          {/* Nút submit */}
           <Box sx={{ mt: 3 }}>
             <Button
               type="submit"
