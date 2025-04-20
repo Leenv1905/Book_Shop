@@ -28,7 +28,6 @@ function EditDiscount() {
   const [initialDiscount, setInitialDiscount] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch dữ liệu sản phẩm và mã giảm giá
   useEffect(() => {
     setLoading(true);
     axios
@@ -55,23 +54,30 @@ function EditDiscount() {
         setInitialDiscount(discount);
         setDateStart(discount.dateStart);
         setDateEnd(discount.dateEnd);
-        setSelectedProducts([
-          {
-            id: discount.product.id,
-            name: discount.product.name,
-            stock: discount.product.quantity,
-            originalPrice: discount.product.price,
-            salePrice: discount.salePrice.toString(),
-            quantity: discount.quantity.toString(),
-          },
-        ]);
+        // Lấy danh sách sản phẩm từ discount_product
+        axios
+          .get(`http://localhost:6868/api/discounts/${discountId}/products`)
+          .then((productResponse) => {
+            setSelectedProducts(
+              productResponse.data.map((dp) => ({
+                id: dp.product.id,
+                name: dp.product.name,
+                stock: dp.product.quantity,
+                originalPrice: dp.product.price,
+                salePrice: dp.salePrice.toString(),
+                quantity: dp.quantity.toString(),
+              }))
+            );
+          })
+          .catch((err) => {
+            setError('Không thể tải sản phẩm của mã giảm giá');
+            console.error('Lỗi khi lấy sản phẩm của mã giảm giá:', err);
+          });
       })
       .catch((err) => {
         if (err.response) {
-          if (err.response.status === 401) {
-            setError('Không được phép truy cập. Vui lòng kiểm tra cấu hình xác thực.');
-          } else if (err.response.status === 404) {
-            setError('Mã giảm giá không tồn tại.');
+          if (err.response.status === 404) {
+            setError(`Mã giảm giá #${discountId} không tồn tại.`);
           } else {
             setError('Lỗi khi tải mã giảm giá.');
           }
@@ -90,16 +96,13 @@ function EditDiscount() {
     setError('');
   };
 
-  const handleProductChange = (event, newValue) => {
-    if (newValue) {
-      setSelectedProducts([
-        {
-          ...newValue,
-          salePrice: selectedProducts[0]?.salePrice || '',
-          quantity: selectedProducts[0]?.quantity || '',
-        },
-      ]); // Chỉ cho phép một sản phẩm (tương thích với backend hiện tại)
-    }
+  const handleProductChange = (event, newValues) => {
+    const updatedProducts = newValues.map((newValue) => {
+      const existingProduct = selectedProducts.find((p) => p.id === newValue.id);
+      return existingProduct || { ...newValue, salePrice: '', quantity: '' };
+    });
+    setSelectedProducts(updatedProducts);
+    setError('');
   };
 
   const handleProductDetailChange = (id, field, value) => {
@@ -130,7 +133,7 @@ function EditDiscount() {
   };
 
   const handleRemoveProduct = (id) => {
-    setSelectedProducts([]);
+    setSelectedProducts((prev) => prev.filter((p) => p.id !== id));
     setError('');
   };
 
@@ -143,9 +146,10 @@ function EditDiscount() {
   };
 
   const isProductsValid = () => {
-    return selectedProducts.every(
-      (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
-    );
+    return selectedProducts.length > 0 &&
+           selectedProducts.every(
+             (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
+           );
   };
 
   const handleSubmit = async (e) => {
@@ -157,15 +161,17 @@ function EditDiscount() {
     }
 
     if (!isProductsValid()) {
-      setError('Vui lòng điền đầy đủ giá và số lượng khuyến mại cho sản phẩm');
+      setError('Vui lòng chọn ít nhất một sản phẩm và điền đầy đủ giá, số lượng khuyến mại');
       return;
     }
 
     const discountData = {
       id: parseInt(discountId),
-      product: { id: selectedProducts[0].id },
-      salePrice: parseFloat(selectedProducts[0].salePrice),
-      quantity: parseInt(selectedProducts[0].quantity),
+      products: selectedProducts.map((p) => ({
+        id: p.id,
+        salePrice: parseFloat(p.salePrice),
+        quantity: parseInt(p.quantity),
+      })),
       dateCreate: initialDiscount.dateCreate,
       dateStart,
       dateEnd,
@@ -176,10 +182,8 @@ function EditDiscount() {
       navigate('/admin/discount');
     } catch (err) {
       if (err.response) {
-        if (err.response.status === 401) {
-          setError('Không được phép cập nhật. Vui lòng kiểm tra cấu hình xác thực.');
-        } else if (err.response.status === 404) {
-          setError('Mã giảm giá không tồn tại.');
+        if (err.response.status === 404) {
+          setError(`Mã giảm giá #${discountId} không tồn tại.`);
         } else {
           setError('Lỗi khi cập nhật mã giảm giá.');
         }
@@ -243,6 +247,7 @@ function EditDiscount() {
           )}
 
           <Autocomplete
+            multiple
             options={products}
             getOptionLabel={(option) => `${option.id} - ${option.name}`}
             filterOptions={(options, { inputValue }) => {
@@ -260,7 +265,7 @@ function EditDiscount() {
               </li>
             )}
             onChange={handleProductChange}
-            value={selectedProducts[0] || null}
+            value={selectedProducts}
             renderInput={(params) => (
               <TextField
                 {...params}

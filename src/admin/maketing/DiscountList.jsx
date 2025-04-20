@@ -29,31 +29,51 @@ function DiscountList() {
   const [expandedId, setExpandedId] = useState(null);
   const [discounts, setDiscounts] = useState([]);
   const [products, setProducts] = useState([]);
+  const [discountProducts, setDiscountProducts] = useState({});
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fetch danh sách sản phẩm và mã giảm giá
+  // Fetch danh sách sản phẩm, mã giảm giá và chi tiết discount_product
   useEffect(() => {
-    axios
-      .get('http://localhost:6868/api/product')
-      .then((response) => {
-        setProducts(response.data.map((p) => ({
+    const fetchData = async () => {
+      try {
+        // Lấy danh sách sản phẩm
+        const productResponse = await axios.get('http://localhost:6868/api/product');
+        setProducts(productResponse.data.map((p) => ({
           id: p.id,
           name: p.name,
           stock: p.quantity,
           originalPrice: p.price,
         })));
-      })
-      .catch((err) => console.error('Lỗi khi lấy sản phẩm:', err));
 
-    axios
-      .get('http://localhost:6868/api/discounts')
-      .then((response) => {
-        setDiscounts(response.data);
-      })
-      .catch((err) => console.error('Lỗi khi lấy mã giảm giá:', err));
+        // Lấy danh sách mã giảm giá
+        const discountResponse = await axios.get('http://localhost:6868/api/discounts');
+        const validDiscounts = discountResponse.data.filter(discount => discount && discount.id);
+        setDiscounts(validDiscounts);
+
+        // Lấy chi tiết discount_product cho mỗi discount
+        const discountProductPromises = validDiscounts.map(discount =>
+          axios.get(`http://localhost:6868/api/discounts/${discount.id}/products`)
+        );
+        const discountProductResponses = await Promise.all(discountProductPromises);
+        const discountProductMap = {};
+        discountProductResponses.forEach((response, index) => {
+          discountProductMap[validDiscounts[index].id] = response.data;
+        });
+        setDiscountProducts(discountProductMap);
+
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch data');
+        setLoading(false);
+        console.error('Error fetching data:', err);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleEditDiscount = (discountId) => {
@@ -64,10 +84,16 @@ function DiscountList() {
     try {
       await axios.delete(`http://localhost:6868/api/discounts/${deleteId}`);
       setDiscounts((prev) => prev.filter((d) => d.id !== deleteId));
+      setDiscountProducts((prev) => {
+        const newMap = { ...prev };
+        delete newMap[deleteId];
+        return newMap;
+      });
       setOpenDialog(false);
       setDeleteId(null);
     } catch (err) {
       console.error('Lỗi khi xóa mã giảm giá:', err);
+      setError('Failed to delete discount');
     }
   };
 
@@ -97,6 +123,9 @@ function DiscountList() {
     setOpenDialog(false);
     setDeleteId(null);
   };
+
+  if (loading) return <Box sx={{ mt: 8 }}><Typography>Loading...</Typography></Box>;
+  if (error) return <Box sx={{ mt: 8 }}><Typography color="error">{error}</Typography></Box>;
 
   return (
     <Box sx={{ mt: 8 }}>
@@ -184,14 +213,27 @@ function DiscountList() {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              <TableRow>
-                                <TableCell>{discount.product.id}</TableCell>
-                                <TableCell>{discount.product.name}</TableCell>
-                                <TableCell>{discount.product.quantity}</TableCell>
-                                <TableCell>{discount.product.price.toLocaleString()}</TableCell>
-                                <TableCell>{discount.salePrice.toLocaleString()}</TableCell>
-                                <TableCell>{discount.quantity}</TableCell>
-                              </TableRow>
+                              {discountProducts[discount.id] && discountProducts[discount.id].length > 0 ? (
+                                discountProducts[discount.id].map((dp) => {
+                                  const product = products.find(p => p.id === dp.productId);
+                                  return (
+                                    <TableRow key={dp.productId}>
+                                      <TableCell>{dp.productId}</TableCell>
+                                      <TableCell>{product ? product.name : 'Unknown'}</TableCell>
+                                      <TableCell>{product ? product.stock : '-'}</TableCell>
+                                      <TableCell>
+                                        {product ? product.originalPrice.toLocaleString() : '-'}
+                                      </TableCell>
+                                      <TableCell>{dp.salePrice.toLocaleString()}</TableCell>
+                                      <TableCell>{dp.quantity}</TableCell>
+                                    </TableRow>
+                                  );
+                                })
+                              ) : (
+                                <TableRow>
+                                  <TableCell colSpan={6}>No products available</TableCell>
+                                </TableRow>
+                              )}
                             </TableBody>
                           </Table>
                         </Box>
