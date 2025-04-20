@@ -24,23 +24,27 @@ function AddDiscount() {
   const [error, setError] = useState('');
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch danh sách sản phẩm từ API
   useEffect(() => {
+    setLoading(true);
     axios
       .get('http://localhost:6868/api/product')
       .then((response) => {
-        setProducts(response.data.map((p) => ({
-          id: p.id,
-          name: p.name,
-          stock: p.quantity,
-          originalPrice: p.price,
-        })));
+        setProducts(
+          response.data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            stock: p.quantity,
+            originalPrice: p.price,
+          }))
+        );
       })
       .catch((err) => {
         setError('Không thể tải danh sách sản phẩm');
-        console.error(err);
-      });
+        console.error('Lỗi khi lấy sản phẩm:', err);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const handleDateChange = (e) => {
@@ -50,13 +54,13 @@ function AddDiscount() {
     setError('');
   };
 
-  const handleProductChange = (event, newValue) => {
-    if (newValue && !selectedProducts.some((p) => p.id === newValue.id)) {
-      setSelectedProducts((prev) => [
-        ...prev,
-        { ...newValue, salePrice: '', quantity: '' },
-      ]);
-    }
+  const handleProductChange = (event, newValues) => {
+    const updatedProducts = newValues.map((newValue) => {
+      const existingProduct = selectedProducts.find((p) => p.id === newValue.id);
+      return existingProduct || { ...newValue, salePrice: '', quantity: '' };
+    });
+    setSelectedProducts(updatedProducts);
+    setError('');
   };
 
   const handleProductDetailChange = (id, field, value) => {
@@ -67,14 +71,16 @@ function AddDiscount() {
             const quantity = parseInt(value) || 0;
             if (quantity > product.stock) {
               setError(`Số lượng không được vượt quá tồn kho (${product.stock})`);
-              return { ...product, quantity: product.stock };
+              return { ...product, quantity: product.stock.toString() };
             }
           }
           if (field === 'salePrice') {
             const salePrice = parseFloat(value) || 0;
             if (salePrice > product.originalPrice) {
-              setError(`Giá khuyến mại không được vượt quá giá gốc (${product.originalPrice.toLocaleString()} VNĐ)`);
-              return { ...product, salePrice: product.originalPrice };
+              setError(
+                `Giá khuyến mại không được vượt quá giá gốc (${product.originalPrice.toLocaleString()} VNĐ)`
+              );
+              return { ...product, salePrice: product.originalPrice.toString() };
             }
           }
           return { ...product, [field]: value };
@@ -85,7 +91,7 @@ function AddDiscount() {
   };
 
   const handleRemoveProduct = (id) => {
-    setSelectedProducts((prev) => prev.filter((product) => product.id !== id));
+    setSelectedProducts((prev) => prev.filter((p) => p.id !== id));
     setError('');
   };
 
@@ -98,9 +104,10 @@ function AddDiscount() {
   };
 
   const isProductsValid = () => {
-    return selectedProducts.every(
-      (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
-    );
+    return selectedProducts.length > 0 &&
+           selectedProducts.every(
+             (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
+           );
   };
 
   const handleSubmit = async (e) => {
@@ -112,36 +119,46 @@ function AddDiscount() {
     }
 
     if (!isProductsValid()) {
-      setError('Vui lòng điền đầy đủ giá và số lượng khuyến mại cho tất cả sản phẩm');
+      setError('Vui lòng chọn ít nhất một sản phẩm và điền đầy đủ giá, số lượng khuyến mại');
       return;
     }
 
-    const discountData = selectedProducts.map(({ id, salePrice, quantity }) => ({
-      product: { id },
-      salePrice: parseFloat(salePrice),
-      quantity: parseInt(quantity),
+    const discountData = {
+      products: selectedProducts.map((p) => ({
+        id: p.id,
+        salePrice: parseFloat(p.salePrice),
+        quantity: parseInt(p.quantity),
+      })),
       dateCreate: new Date().toISOString().split('T')[0],
       dateStart,
       dateEnd,
-    }));
+    };
 
     try {
-      await Promise.all(
-        discountData.map((data) =>
-          axios.post('http://localhost:6868/api/discounts', data)
-        )
-      );
+      await axios.post('http://localhost:6868/api/discounts', discountData);
       navigate('/admin/discount');
     } catch (err) {
-      setError('Lỗi khi thêm mã giảm giá');
-      console.error(err);
+      if (err.response) {
+        setError('Lỗi khi tạo mã giảm giá.');
+      } else {
+        setError('Không thể kết nối đến server.');
+      }
+      console.error('Lỗi khi tạo mã giảm giá:', err);
     }
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ mt: 8 }}>
+        <Typography variant="h6">Đang tải...</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ mt: 8 }}>
       <Typography variant="h5" gutterBottom>
-        Thêm chương trình khuyến mại mới
+        Thêm chương trình khuyến mại
       </Typography>
       <Paper sx={{ p: 3 }}>
         <Box component="form" onSubmit={handleSubmit}>
@@ -175,9 +192,8 @@ function AddDiscount() {
           )}
 
           <Autocomplete
-            options={products.filter(
-              (p) => !selectedProducts.some((sp) => sp.id === p.id)
-            )}
+            multiple
+            options={products}
             getOptionLabel={(option) => `${option.id} - ${option.name}`}
             filterOptions={(options, { inputValue }) => {
               const input = inputValue.toLowerCase();
@@ -189,14 +205,16 @@ function AddDiscount() {
             }}
             renderOption={(props, option) => (
               <li {...props}>
-                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc: {option.originalPrice.toLocaleString()} VNĐ)
+                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc:{' '}
+                {option.originalPrice.toLocaleString()} VNĐ)
               </li>
             )}
             onChange={handleProductChange}
+            value={selectedProducts}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Thêm sản phẩm"
+                label="Chọn sản phẩm"
                 placeholder="Gõ ID hoặc tên sản phẩm"
                 margin="normal"
               />
@@ -274,7 +292,7 @@ function AddDiscount() {
               sx={{ mr: 2 }}
               disabled={selectedProducts.length === 0}
             >
-              Thêm
+              Lưu
             </Button>
             <Button variant="outlined" onClick={() => navigate('/admin/discount')}>
               Hủy
