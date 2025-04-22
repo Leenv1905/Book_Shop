@@ -19,11 +19,13 @@ import axios from 'axios';
 
 function AddDiscount() {
   const navigate = useNavigate();
-  const [dateStart, setDateStart] = useState('');
-  const [dateEnd, setDateEnd] = useState('');
-  const [error, setError] = useState('');
-  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [discount, setDiscount] = useState({
+    dateStart: '',
+    dateEnd: '',
+    discountProducts: []
+  });
   const [products, setProducts] = useState([]);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ function AddDiscount() {
             id: p.id,
             name: p.name,
             stock: p.quantity,
-            originalPrice: p.price,
+            originalPrice: p.price
           }))
         );
       })
@@ -49,23 +51,22 @@ function AddDiscount() {
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'dateStart') setDateStart(value);
-    if (name === 'dateEnd') setDateEnd(value);
+    setDiscount(prev => ({ ...prev, [name]: value }));
     setError('');
   };
 
   const handleProductChange = (event, newValues) => {
     const updatedProducts = newValues.map((newValue) => {
-      const existingProduct = selectedProducts.find((p) => p.id === newValue.id);
+      const existingProduct = discount.discountProducts.find((p) => p.id === newValue.id);
       return existingProduct || { ...newValue, salePrice: '', quantity: '' };
     });
-    setSelectedProducts(updatedProducts);
+    setDiscount(prev => ({ ...prev, discountProducts: updatedProducts }));
     setError('');
   };
 
   const handleProductDetailChange = (id, field, value) => {
-    setSelectedProducts((prev) =>
-      prev.map((product) => {
+    setDiscount(prev => {
+      const newProducts = prev.discountProducts.map((product) => {
         if (product.id === id) {
           if (field === 'quantity') {
             const quantity = parseInt(value) || 0;
@@ -86,35 +87,40 @@ function AddDiscount() {
           return { ...product, [field]: value };
         }
         return product;
-      })
-    );
+      });
+      return { ...prev, discountProducts: newProducts };
+    });
   };
 
   const handleRemoveProduct = (id) => {
-    setSelectedProducts((prev) => prev.filter((p) => p.id !== id));
+    setDiscount(prev => ({
+      ...prev,
+      discountProducts: prev.discountProducts.filter((p) => p.id !== id)
+    }));
     setError('');
   };
 
   const isDateValid = () => {
-    if (!dateStart || !dateEnd) return false;
-    const start = new Date(dateStart);
-    const end = new Date(dateEnd);
-    const diffInDays = (end - start) / (1000 * 60 * 60 * 24);
-    return diffInDays >= 1;
+    if (!discount.dateStart || !discount.dateEnd) return false;
+    const start = new Date(discount.dateStart);
+    const end = new Date(discount.dateEnd);
+    return end >= start;
   };
 
   const isProductsValid = () => {
-    return selectedProducts.length > 0 &&
-           selectedProducts.every(
-             (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
-           );
+    return (
+      discount.discountProducts.length > 0 &&
+      discount.discountProducts.every(
+        (p) => p.salePrice !== '' && p.quantity !== '' && parseInt(p.quantity) > 0
+      )
+    );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isDateValid()) {
-      setError('Ngày kết thúc phải lớn hơn ngày bắt đầu ít nhất 1 ngày');
+      setError('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu');
       return;
     }
 
@@ -124,25 +130,21 @@ function AddDiscount() {
     }
 
     const discountData = {
-      products: selectedProducts.map((p) => ({
-        id: p.id,
-        salePrice: parseFloat(p.salePrice),
-        quantity: parseInt(p.quantity),
-      })),
       dateCreate: new Date().toISOString().split('T')[0],
-      dateStart,
-      dateEnd,
+      dateStart: discount.dateStart,
+      dateEnd: discount.dateEnd,
+      discountProducts: discount.discountProducts.map((p) => ({
+        productId: p.id,
+        salePrice: parseFloat(p.salePrice),
+        quantity: parseInt(p.quantity)
+      }))
     };
 
     try {
       await axios.post('http://localhost:6868/api/discounts', discountData);
       navigate('/admin/discount');
     } catch (err) {
-      if (err.response) {
-        setError('Lỗi khi tạo mã giảm giá.');
-      } else {
-        setError('Không thể kết nối đến server.');
-      }
+      setError(err.response?.data || 'Lỗi khi tạo mã giảm giá.');
       console.error('Lỗi khi tạo mã giảm giá:', err);
     }
   };
@@ -167,7 +169,7 @@ function AddDiscount() {
               label="Ngày bắt đầu"
               name="dateStart"
               type="date"
-              value={dateStart}
+              value={discount.dateStart}
               onChange={handleDateChange}
               InputLabelProps={{ shrink: true }}
               required
@@ -177,7 +179,7 @@ function AddDiscount() {
               label="Ngày kết thúc"
               name="dateEnd"
               type="date"
-              value={dateEnd}
+              value={discount.dateEnd}
               onChange={handleDateChange}
               InputLabelProps={{ shrink: true }}
               required
@@ -205,12 +207,11 @@ function AddDiscount() {
             }}
             renderOption={(props, option) => (
               <li {...props}>
-                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc:{' '}
-                {option.originalPrice.toLocaleString()} VNĐ)
+                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc: {option.originalPrice.toLocaleString()} VNĐ)
               </li>
             )}
             onChange={handleProductChange}
-            value={selectedProducts}
+            value={discount.discountProducts}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -222,7 +223,7 @@ function AddDiscount() {
             fullWidth
           />
 
-          {selectedProducts.length > 0 && (
+          {discount.discountProducts.length > 0 && (
             <TableContainer sx={{ mt: 2 }}>
               <Table>
                 <TableHead>
@@ -237,7 +238,7 @@ function AddDiscount() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedProducts.map((product) => (
+                  {discount.discountProducts.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>{product.id}</TableCell>
                       <TableCell>{product.name}</TableCell>
@@ -290,7 +291,7 @@ function AddDiscount() {
               variant="contained"
               color="primary"
               sx={{ mr: 2 }}
-              disabled={selectedProducts.length === 0}
+              disabled={discount.discountProducts.length === 0}
             >
               Lưu
             </Button>
