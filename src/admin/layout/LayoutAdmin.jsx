@@ -16,6 +16,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import Tooltip from '@mui/material/Tooltip';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import ShoppingCartCheckoutOutlinedIcon from '@mui/icons-material/ShoppingCartCheckoutOutlined';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
@@ -40,10 +41,10 @@ function LayoutAdmin() {
       const isCurrentlyMobile = window.innerWidth < theme.breakpoints.values.md;
       setIsMobile(isCurrentlyMobile);
       if (isCurrentlyMobile) {
-        setDrawerOpen(false); // Đóng drawer trên mobile
+        setDrawerOpen(false);
         setMobileOpen(false);
       } else {
-        setDrawerOpen(true); // Mở drawer trên desktop
+        setDrawerOpen(true);
       }
     };
 
@@ -79,7 +80,7 @@ function LayoutAdmin() {
 
   // Menu cho Drawer tạm thời (mobile, 3 cột)
   const mobileMenu = (
-    <Grid container spacing={2} sx={{ p: 2 }}>
+    <Grid container spacing={2} sx={{ p: 2, bgcolor: '#263238' }}>
       {['Dashboard', 'Products', 'Ware House', 'Order', 'User', 'Supplier', 'Maketing', 'Review'].map((text, index) => {
         const paths = [
           '/admin',
@@ -98,10 +99,10 @@ function LayoutAdmin() {
               sx={{
                 p: 1,
                 borderRadius: '8px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                bgcolor: '#37474F',
                 '&:hover': {
-                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  bgcolor: '#546E7A',
                   transform: 'translateY(-2px)',
                   transition: 'all 0.2s ease',
                 },
@@ -115,13 +116,13 @@ function LayoutAdmin() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
-                  color: '#d5d6d6',
+                  color: '#CFD8DC',
                 }}
               >
-                <ListItemIcon sx={{ color: '#d5d6d6', mb: 1 }}>
+                <ListItemIcon sx={{ color: '#CFD8DC', mb: 1 }}>
                   {allIcons[index % allIcons.length]}
                 </ListItemIcon>
-                <ListItemText primary={text} sx={{ color: '#d5d6d6' }} />
+                <ListItemText primary={text} sx={{ color: '#CFD8DC' }} />
               </ListItemButton>
             </Paper>
           </Grid>
@@ -138,62 +139,114 @@ function LayoutAdmin() {
           const paths = ['/admin', '/admin/product', '/admin/import-products', '/admin/order', '/admin/user'];
           return (
             <ListItem key={text} disablePadding>
-              <ListItemButton
-                component={Link}
-                to={paths[index]}
+              <Tooltip
+                title={drawerOpen ? '' : text}
+                placement="right"
+                arrow
                 sx={{
-                  justifyContent: drawerOpen ? 'initial' : 'center',
-                  px: 2.5,
+                  '& .MuiTooltip-tooltip': {
+                    backgroundColor: '#455A64',
+                    color: '#FFFFFF',
+                    fontSize: '0.9rem',
+                  },
                 }}
               >
-                <ListItemIcon
+                <ListItemButton
+                  component={Link}
+                  to={paths[index]}
                   sx={{
-                    minWidth: 0,
-                    mr: drawerOpen ? 3 : 'auto',
-                    justifyContent: 'center',
-                    color: '#d5d6d6',
+                    justifyContent: drawerOpen ? 'initial' : 'center',
+                    px: 2.5,
+                    '&:hover': {
+                      bgcolor: '#37474F',
+                      color: '#F5F5F5',
+                    },
                   }}
                 >
-                  {icons[index % icons.length]}
-                </ListItemIcon>
-                <ListItemText
-                  primary={text}
-                  sx={{ opacity: drawerOpen ? 1 : 0, color: '#d5d6d6' }}
-                />
-              </ListItemButton>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: drawerOpen ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: '#CFD8DC',
+                      '&:hover': {
+                        color: '#F5F5F5',
+                      },
+                    }}
+                  >
+                    {icons[index % icons.length]}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={text}
+                    sx={{
+                      opacity: drawerOpen ? 1 : 0,
+                      color: '#CFD8DC',
+                      '&:hover': {
+                        color: '#F5F5F5',
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           );
         })}
       </List>
-      <Divider />
+      <Divider sx={{ bgcolor: '#37474F' }} />
       <List>
         {['Supplier', 'Maketing', 'Review'].map((text, index) => {
           const paths2 = ['/admin/supplier', '/admin/discount', '/admin/review'];
           return (
             <ListItem key={text} disablePadding>
-              <ListItemButton
-                component={Link}
-                to={paths2[index]}
+              <Tooltip
+                title={drawerOpen ? '' : text}
+                placement="right"
+                arrow
                 sx={{
-                  justifyContent: drawerOpen ? 'initial' : 'center',
-                  px: 2.5,
+                  '& .MuiTooltip-tooltip': {
+                    backgroundColor: '#455A64',
+                    color: '#FFFFFF',
+                    fontSize: '0.9rem',
+                  },
                 }}
               >
-                <ListItemIcon
+                <ListItemButton
+                  component={Link}
+                  to={paths2[index]}
                   sx={{
-                    minWidth: 0,
-                    mr: drawerOpen ? 3 : 'auto',
-                    justifyContent: 'center',
-                    color: '#d5d6d6',
+                    justifyContent: drawerOpen ? 'initial' : 'center',
+                    px: 2.5,
+                    '&:hover': {
+                      bgcolor: '#37474F',
+                      color: '#F5F5F5',
+                    },
                   }}
                 >
-                  {icons2[index % icons2.length]}
-                </ListItemIcon>
-                <ListItemText
-                  primary={text}
-                  sx={{ opacity: drawerOpen ? 1 : 0, color: '#d5d6d6' }}
-                />
-              </ListItemButton>
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: drawerOpen ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: '#CFD8DC',
+                      '&:hover': {
+                        color: '#F5F5F5',
+                      },
+                    }}
+                  >
+                    {icons2[index % icons2.length]}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={text}
+                    sx={{
+                      opacity: drawerOpen ? 1 : 0,
+                      color: '#CFD8DC',
+                      '&:hover': {
+                        color: '#F5F5F5',
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           );
         })}
@@ -202,26 +255,30 @@ function LayoutAdmin() {
   );
 
   const drawer = (
-    <div style={{ backgroundColor: '#99b7bb', height: isMobile ? 'auto' : '100vh', overflow: 'auto' }}>
+    <div style={{ backgroundColor: '#263238', height: isMobile ? 'auto' : '100vh', overflow: 'auto' }}>
       <Toolbar>
         <IconButton
           color="inherit"
           aria-label={drawerOpen ? 'close drawer' : 'open drawer'}
           edge="start"
           onClick={drawerOpen ? handleDrawerClose : handleDrawerOpen}
-          sx={{ display: { xs: 'none', md: 'block' } }}
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            color: '#CFD8DC',
+            '&:hover': { bgcolor: '#37474F' },
+          }}
         >
           {drawerOpen ? (
             <img src="/demo/images/main-logo.png" alt="SHOP" style={{ width: '120px', height: 'auto' }} />
           ) : (
-            <MenuIcon sx={{ color: '#d5d6d6' }} />
+            <MenuIcon />
           )}
         </IconButton>
-        <Typography sx={{ display: { xs: 'block', md: drawerOpen ? 'none' : 'none' } }}>
+        <Typography sx={{ display: { xs: 'block', md: drawerOpen ? 'none' : 'none' }, color: '#CFD8DC' }}>
           BOOK SHOP
         </Typography>
       </Toolbar>
-      <Divider />
+      <Divider sx={{ bgcolor: '#37474F' }} />
       {isMobile ? mobileMenu : desktopMenu}
     </div>
   );
@@ -258,11 +315,7 @@ function LayoutAdmin() {
               width: '100%',
               height: 'auto',
               transition: 'transform 0.2s ease-in-out',
-            },
-          }}
-          PaperProps={{
-            sx: {
-              backgroundColor: '#99b7bb',
+              backgroundColor: '#263238',
             },
           }}
         >
@@ -279,7 +332,7 @@ function LayoutAdmin() {
               boxSizing: 'border-box',
               width: drawerOpen ? drawerWidth : `calc(${theme.spacing(7)} + 1px)`,
               transition: 'width 0.2s ease',
-              backgroundColor: '#99b7bb',
+              backgroundColor: '#263238',
             },
           }}
         >
@@ -290,10 +343,12 @@ function LayoutAdmin() {
         component="main"
         sx={{
           flexGrow: 1,
+          mt: 3,
           p: 3,
           pt: 8,
           width: { md: `calc(100% - ${drawerOpen ? drawerWidth : `calc(${theme.spacing(7)} + 1px)`})` },
           transition: 'width 0.2s ease',
+          bgcolor: 'white', // Nền trắng cho nội dung chính
         }}
       >
         <Outlet />
