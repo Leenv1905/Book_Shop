@@ -1,4 +1,4 @@
-import React, { useState, useEffect  } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,87 +10,82 @@ import {
   Checkbox,
   Typography,
   FormControlLabel,
-
 } from "@mui/material";
+import axios from "axios";
+import { useAuth } from "../../protected/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const UserModal = ({ open, onClose, onLoginSuccess }) => {
+const UserModal = () => {
+  const { showLoginModal, setShowLoginModal, handleLoginSuccess } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [tabIndex, setTabIndex] = useState(0);
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
-  const [rememberMe, setRememberMe] = useState(false); // Trạng thái Remember Me
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
 
-  // Chỉ điền thông tin đăng nhập nếu Remember Me đã được bật trước đó
-  // useEffect(() => {
-  //   const savedRememberMe = localStorage.getItem("rememberMe") === "true";
-  //   if (savedRememberMe) {
-  //     const savedUsername = localStorage.getItem("username") || "";
-  //     const savedPassword = localStorage.getItem("password") || "";
-  //     setCredentials({ username: savedUsername, password: savedPassword });
-  //     setRememberMe(true);
-  //   }
-  // }, []);
-
   useEffect(() => {
-    // Chỉ lấy dữ liệu từ localStorage nếu rememberMe đã được bật trước đó
     const savedRememberMe = localStorage.getItem("rememberMe") === "true";
     if (savedRememberMe) {
       setRememberMe(true);
       setCredentials({
-        username: localStorage.getItem("username") || "",
+        email: localStorage.getItem("email") || "",
         password: localStorage.getItem("password") || "",
       });
     } else {
-      setCredentials({ username: "", password: "" });
+      setCredentials({ email: "", password: "" });
     }
-  }, [open]); // Chạy lại khi mở modal
+  }, [showLoginModal]);
 
+  const handleRedirect = (role) => {
+    if (role === "ROLE_ADMIN") {
+      navigate("/admin");
+    } else if (role === "ROLE_USER") {
+      navigate(location.pathname);
+    }
+  };
 
- // Cách cũ, auto lưu thông tin đăng nhập
-  // const handleLogin = () => {
-  //   if (credentials.username === "admin" && credentials.password === "123456") {
-  //     onLoginSuccess(); // Cập nhật trạng thái đăng nhập
-  //   } else {
-  //     alert("Invalid username or password");
-  //   }
-  // };
- 
-  const handleLogin = () => {
-    if (credentials.username === "admin" && credentials.password === "123456") {
-      onLoginSuccess(); // Cập nhật trạng thái đăng nhập
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post("http://localhost:6868/api/auth/login", {
+        email: credentials.email,
+        password: credentials.password,
+      });
 
-      if (rememberMe) {
-        localStorage.setItem("username", credentials.username);
-        localStorage.setItem("password", credentials.password);
-        localStorage.setItem("rememberMe", "true");
-      } else {
-        localStorage.removeItem("username");
-        localStorage.removeItem("password");
-        localStorage.removeItem("rememberMe");
+      if (response.data.token) {
+        handleLoginSuccess(response.data.token, handleRedirect);
+
+        if (rememberMe) {
+          localStorage.setItem("email", credentials.email);
+          localStorage.setItem("password", credentials.password);
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("email");
+          localStorage.removeItem("password");
+          localStorage.removeItem("rememberMe");
+        }
       }
-
-      onClose(); // Đóng modal sau khi đăng nhập
-    } else {
-      alert("Invalid username or password");
+    } catch (error) {
+      setError("Email hoặc mật khẩu không đúng!");
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={showLoginModal} onClose={() => setShowLoginModal(false)}>
       <DialogContent>
         <Tabs value={tabIndex} onChange={(e, newIndex) => setTabIndex(newIndex)} centered>
           <Tab label="Login" />
           <Tab label="Register" />
         </Tabs>
-
         {tabIndex === 0 && (
           <Box sx={{ p: 2 }}>
             <TextField
               fullWidth
-              label="Username"
+              label="Email"
               margin="normal"
-              value={credentials.username}
-              onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Bắt sự kiện Enter
+              value={credentials.email}
+              onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -100,11 +95,9 @@ const UserModal = ({ open, onClose, onLoginSuccess }) => {
               margin="normal"
               value={credentials.password}
               onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Bắt sự kiện Enter
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               sx={{ mb: 2 }}
             />
-
-        {/* Remember Me */}
             {error && <Typography color="error" mt={1}>{error}</Typography>}
             <FormControlLabel
               control={
@@ -116,14 +109,11 @@ const UserModal = ({ open, onClose, onLoginSuccess }) => {
               label="Remember me"
               sx={{ mt: 1 }}
             />
-        {/* Remember Me */}
-
             <Button variant="contained" fullWidth onClick={handleLogin} sx={{ mt: 2 }}>
               Login
             </Button>
           </Box>
         )}
-
         {tabIndex === 1 && (
           <Box sx={{ p: 2 }}>
             <TextField fullWidth label="Username" margin="normal" />
