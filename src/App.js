@@ -109,8 +109,8 @@ function App() {
             {/* Route cho Product */}
             <Route path="product" element={<ProductList />} />
             <Route path="addproduct" element={<AddProduct />} />
-            <Route path="editproduct" element={<EditProduct />} />
-            <Route path="productview" element={<ProductView />} />
+            <Route path="editproduct/:id" element={<EditProduct />} />
+            <Route path="productview/:id" element={<ProductView />} />
 
             <Route path="order" element={<OrderList />} />
             <Route path="order/:orderId" element={<OrderDetails />} />
