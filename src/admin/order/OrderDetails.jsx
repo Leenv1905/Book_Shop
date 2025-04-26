@@ -13,8 +13,6 @@ import {
   Button,
 } from '@mui/material';
 
-
-// object orderDetailsData để mô phỏng dữ liệu chi tiết đơn hàng
 // Dữ liệu mẫu (có thể thay bằng API thực tế)
 const orderDetailsData = {
   1: {
@@ -37,50 +35,135 @@ const orderDetailsData = {
     items: [{ productId: 2, name: 'Quần jeans', quantity: 2, price: 100000 }],
   },
   3: {
-    id: 2,
-    date: '2022-03-31',
-    total: 999,
-    status: 'Pending',
-    user: { name: 'Userxxxxxxxx', email: 'xxxxxxxx@gmail.com' },
-    items: [{ productId: 99, name: 'Quần jeans', quantity: 2, price: 100000 }],
+    id: 3,
+    date: '2025-03-30',
+    total: 300000,
+    status: 'Shipped',
+    user: { name: 'User3', email: 'user3@gmail.com' },
+    items: [{ productId: 3, name: 'Áo khoác', quantity: 2, price: 150000 }],
   },
 };
 
-
-// hiển thị thông tin chi tiết của một đơn hàng cụ thể dựa trên orderId từ URL
 function OrderDetails() {
   const { orderId } = useParams();
-//   useParams: Lấy orderId từ URL để hiển thị chi tiết đơn hàng tương ứng
   const navigate = useNavigate();
   const order = orderDetailsData[orderId] || {};
 
   if (!order.id) {
     return (
-      <Box sx={{ mt: 8 }}>
-        <Typography variant="h6">Không tìm thấy đơn hàng</Typography>
+      <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+        <Typography
+          variant="h6"
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 'medium',
+          }}
+        >
+          Không tìm thấy đơn hàng
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ mt: 8 }}>
-      <Typography variant="h5" gutterBottom>
-        Chi tiết đơn hàng #{order.id}
+    <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          color: '#1a2820',
+          letterSpacing: '0.5px',
+        }}
+      >
+        CHI TIẾT ĐƠN HÀNG #{order.id}
       </Typography>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6">Thông tin đơn hàng</Typography>
-        <Typography>Ngày đặt: {order.date}</Typography>
-        <Typography>Trạng thái: {order.status}</Typography>
-        <Typography>Tổng tiền: {order.total.toLocaleString()} VNĐ</Typography>
-        <Typography>Khách hàng: {order.user.name} ({order.user.email})</Typography>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 'bold',
+            color: '#1a2820',
+            mb: 2,
+          }}
+        >
+          Thông tin đơn hàng
+        </Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 'medium',
+            mb: 1,
+          }}
+        >
+          Ngày đặt: {order.date}
+        </Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 'medium',
+            mb: 1,
+          }}
+        >
+          Trạng thái: {order.status}
+        </Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 'medium',
+            mb: 1,
+          }}
+        >
+          Tổng tiền: {order.total.toLocaleString()} VNĐ
+        </Typography>
+        <Typography
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 'medium',
+            mb: 2,
+          }}
+        >
+          Khách hàng: {order.user.name} ({order.user.email})
+        </Typography>
 
-        <Typography variant="h6" sx={{ mt: 2 }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 'bold',
+            color: '#1a2820',
+            mb: 2,
+            mt: 3,
+          }}
+        >
           Danh sách sản phẩm
         </Typography>
-        <TableContainer>
-          <Table>
+        <TableContainer
+          sx={{
+            borderRadius: '12px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+            overflow: 'hidden',
+          }}
+        >
+          <Table sx={{ minWidth: 650 }} aria-label="order items table">
             <TableHead>
-              <TableRow>
+              <TableRow
+                sx={{
+                  backgroundColor: 'grey.100',
+                  '& th': {
+                    fontWeight: 'bold',
+                    color: 'text.primary',
+                    py: 2,
+                    borderBottom: '2px solid',
+                    borderColor: 'grey.300',
+                  },
+                }}
+              >
                 <TableCell>Tên sản phẩm</TableCell>
                 <TableCell>Số lượng</TableCell>
                 <TableCell>Đơn giá (VNĐ)</TableCell>
@@ -89,8 +172,21 @@ function OrderDetails() {
             </TableHead>
             <TableBody>
               {order.items.map((item) => (
-                <TableRow key={item.productId}>
-                  <TableCell>{item.name}</TableCell>
+                <TableRow
+                  key={item.productId}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: 'grey.50',
+                      transition: 'background-color 0.2s',
+                    },
+                    '& td': {
+                      py: 1.5,
+                      borderBottom: '1px solid',
+                      borderColor: 'grey.200',
+                    },
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 'medium' }}>{item.name}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell>{item.price.toLocaleString()}</TableCell>
                   <TableCell>{(item.quantity * item.price).toLocaleString()}</TableCell>
@@ -102,8 +198,21 @@ function OrderDetails() {
 
         <Button
           variant="outlined"
-          sx={{ mt: 2 }}
           onClick={() => navigate('/admin/order')}
+          sx={{
+            mt: 3,
+            borderRadius: '20px',
+            textTransform: 'none',
+            fontWeight: 'medium',
+            px: 3,
+            py: 1,
+            borderColor: 'grey.400',
+            color: 'text.primary',
+            '&:hover': {
+              borderColor: 'primary.main',
+              bgcolor: 'grey.50',
+            },
+          }}
         >
           Quay lại
         </Button>

@@ -1,5 +1,4 @@
 
-import logo from './logo.svg';
 import React from "react";
 import './App.css';
 import { ThemeProvider } from '@mui/material/styles';
@@ -33,6 +32,7 @@ import AddProduct from "./admin/product/AddProduct";
 import EditProduct from "./admin/product/EditProduct";
 import ProductView from "./admin/product/ProductView";
 import OrderList from "./admin/order/OrderList";
+import EditOrder from "./admin/order/EditOrder";
 import OrderDetails from "./admin/order/OrderDetails";
 import CreateUser from "./admin/user/CreateUser";
 import UserList from "./admin/user/UserList";
@@ -102,6 +102,7 @@ function AppContent() {
           <Route path="editproduct/:id" element={<EditProduct />} />
           <Route path="productview/:id" element={<ProductView />} />
           <Route path="order" element={<OrderList />} />
+          <Route path="edit-order/:orderId" element={<EditOrder />} />
           <Route path="order/:orderId" element={<OrderDetails />} />
           <Route path="user" element={<UserList />} />
           <Route path="create-user" element={<CreateUser />} />
