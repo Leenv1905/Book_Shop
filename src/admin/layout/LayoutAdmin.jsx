@@ -17,13 +17,14 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Tooltip from '@mui/material/Tooltip';
-import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
-import ShoppingCartCheckoutOutlinedIcon from '@mui/icons-material/ShoppingCartCheckoutOutlined';
-import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
-import NoteAltOutlinedIcon from '@mui/icons-material/NoteAltOutlined';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import PeopleOutlineOutlinedIcon from '@mui/icons-material/PeopleOutlineOutlined';
-import SupportAgentOutlinedIcon from '@mui/icons-material/SupportAgentOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import WarehouseOutlinedIcon from '@mui/icons-material/WarehouseOutlined';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
+import StarOutlineOutlinedIcon from '@mui/icons-material/StarOutlineOutlined';
 import AdminAppBar from './AdminAppBar';
 import Slide from '@mui/material/Slide';
 
@@ -65,17 +66,17 @@ function LayoutAdmin() {
   };
 
   const icons = [
-    <InsightsOutlinedIcon />,
-    <ShoppingCartCheckoutOutlinedIcon />,
-    <ShoppingBagOutlinedIcon />,
-    <SupportAgentOutlinedIcon />,
-    <SupportAgentOutlinedIcon />,
+    <DashboardOutlinedIcon />,
+    <Inventory2OutlinedIcon />,
+    <WarehouseOutlinedIcon />,
+    <ShoppingCartOutlinedIcon />,
+    <PersonOutlineOutlinedIcon />,
   ];
 
   const icons2 = [
-    <InboxIcon />,
-    <PeopleOutlineOutlinedIcon />,
-    <NoteAltOutlinedIcon />,
+    <LocalShippingOutlinedIcon />,
+    <CampaignOutlinedIcon />,
+    <StarOutlineOutlinedIcon />,
   ];
 
   // Menu cho Drawer tạm thời (mobile, 3 cột)

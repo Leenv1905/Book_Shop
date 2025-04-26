@@ -48,7 +48,8 @@ function AdminAppBar({ drawerOpen, drawerWidth, handleDrawerToggle }) {
         transition: 'width 0.2s ease, margin 0.2s ease',
         backgroundColor: '#e9eced', // Xanh sáng
         color: '#3e5b61', // Xanh xám yoois
-        mb: 5, // Thêm khoảng cách 15px (2 * 8px = 16px)
+        // mb: 5, // Thêm khoảng cách 15px (2 * 8px = 16px)
+        boxShadow: '1px 1px 3px rgba(19, 37, 39, 0.34)', // Bóng đổ tối thiểu
       }}
     >
       <Toolbar>
@@ -68,7 +69,7 @@ function AdminAppBar({ drawerOpen, drawerWidth, handleDrawerToggle }) {
               noWrap
               component="div"
               sx={{
-                ml: { xs: 0, md: '60px' },
+                ml: { xs: 0, md: '50px' },
                 display: { xs: 'none', md: 'block' },
                 transition: 'width 0.2s ease, margin 0.2s ease',
               }}
@@ -80,7 +81,7 @@ function AdminAppBar({ drawerOpen, drawerWidth, handleDrawerToggle }) {
             color="inherit"
             aria-label="account menu"
             onClick={handleMenuOpen}
-            sx={{ '&:hover': { bgcolor: '#2E7D32' }, mr: 4 }}
+            sx={{ '&:hover': { bgcolor: '#7d9499' }, mr: 4 }}
           >
             <AccountCircleIcon />
           </IconButton>
@@ -100,21 +101,21 @@ function AdminAppBar({ drawerOpen, drawerWidth, handleDrawerToggle }) {
           sx={{
             '& .MuiPaper-root': {
               mt:5,
-              backgroundColor: '#7d9499', // Khớp với AppBar
+              backgroundColor: '#e9eced', // Khớp với AppBar
               color: '#3e5b61',
-              border: '1px solid #7d9499',
+              border: '1px solid #e9eced',
             },
           }}
         >
           <MenuItem
             onClick={handleMyAccount}
-            sx={{ '&:hover': { bgcolor: '#2E7D32' } }}
+            sx={{ '&:hover': { bgcolor: '#7d9499' } }}
           >
             My Account
           </MenuItem>
           <MenuItem
             onClick={handleLogoutClick}
-            sx={{ '&:hover': { bgcolor: '#2E7D32' } }}
+            sx={{ '&:hover': { bgcolor: '#7d9499' } }}
           >
             Logout
           </MenuItem>
