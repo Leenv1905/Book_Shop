@@ -24,6 +24,7 @@ import CustomerProfile from "./pages/customer/CustomerProfile";
 
 // ĐOẠN NÀY LÀ GIAO DIỆN ADMIN
 import LayoutAdmin from "./admin/layout/LayoutAdmin";
+import Dashboard from "./admin/dashboard/Dashboard";
 import ProductList from "./admin/product/ProductList";
 import AddProduct from "./admin/product/AddProduct";
 import EditProduct from "./admin/product/EditProduct";
@@ -105,7 +106,7 @@ function App() {
           </Route>
 
           <Route path="/admin" element={<LayoutAdmin />}>
-            <Route index element={<ProductList />} />
+            <Route index element={<Dashboard />} />
             {/* Route cho Product */}
             <Route path="product" element={<ProductList />} />
             <Route path="addproduct" element={<AddProduct />} />
