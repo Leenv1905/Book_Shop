@@ -1,3 +1,4 @@
+// Component gọi đến các group product chứa các card miniproduct
 import React from "react";
 import { Box, Container } from "@mui/material";
 import ProductGroup from "./ProductGroup";

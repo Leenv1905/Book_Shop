@@ -1,3 +1,4 @@
+// Nhóm các Minicard sản phẩm thành 1 ô dọc
 import React from "react";
 import { Box, Typography, Divider } from "@mui/material";
 import MiniProductCard from "./MiniProductCard";

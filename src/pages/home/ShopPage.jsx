@@ -18,7 +18,6 @@ const ShopPage = () => {
         title="Shop"
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Shop" },
           { label: "Shop" } // Không có href → là trang hiện tại
         ]}/>
     {/* // <Container sx={{ paddingY: 4 }}> */}

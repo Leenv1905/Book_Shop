@@ -25,7 +25,7 @@ const UserItems = () => {
         {!isAuthenticated ? (
           <>
             <MenuItem onClick={() => { setShowLoginModal(true); handleMenuClose(); }}>Login</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Register</MenuItem>
+            <MenuItem onClick={() => { setShowLoginModal(true); handleMenuClose(); }}>Register</MenuItem>
           </>
         ) : (
           <>

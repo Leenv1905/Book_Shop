@@ -1,9 +1,16 @@
 import React from "react";
 import { Card, CardMedia, CardContent, Typography, Box, Rating } from "@mui/material";
 import CardActions from '../../action/CardActions';
+import { useNavigate } from 'react-router-dom';
 
 const MiniProductCard = ({ image, title, author, rating, price, originalPrice, id }) => {
   // Tạo object product để truyền vào CardActions
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate(`/productdetail`);
+  };
+
   const product = {
     id,
     name: title,
@@ -55,13 +62,16 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice, i
           margin: "5px", // Tạo khoảng cách lề giữa ảnh và card
           objectFit: "contain", // Đảm bảo ảnh nằm gọn trong khung mà không bị cắt
           borderRadius: "4px", // Thêm đường bo góc (tùy chọn nếu thấy đẹp)
+          cursor: "pointer", // Hiệu ứng khi di chuột
         }}
         image={image}
         alt={title}
+        onClick={handleNavigate}
       />
       <CardContent sx={{ flex: "1" }}>
         <Typography variant="h6" component="div"
           //  component="div" thực tế ko cần sử dụng ???
+          onClick={handleNavigate}
           sx={{
             fontWeight: 'bold',
             whiteSpace: 'nowrap', // Không xuống dòng
@@ -69,6 +79,8 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice, i
             textOverflow: 'ellipsis', // Hiển thị dấu "..."
             maxWidth: "220px", // Chiều rộng tối đa của tiêu đề (Bắt buộc)
             flex: 1, // Chiếm toàn bộ không gian còn lại trong bố cục
+            cursor: 'pointer', // Hiệu ứng khi di chuột
+            '&:hover': { color: '#F86D72' },
           }}>
           {title}
         </Typography>
