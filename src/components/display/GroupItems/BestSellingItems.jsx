@@ -67,7 +67,7 @@ const BestSellingItems = () => {
             sx={{ fontSize: '2.5rem' }}
             // sx={{ fontWeight: 'bold' }}
           >
-            Best selling items
+            Featured Products
           </Typography>
           <Button 
             href="/shop" 

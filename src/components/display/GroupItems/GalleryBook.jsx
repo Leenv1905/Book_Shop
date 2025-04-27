@@ -7,6 +7,12 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 
+// Hàm giới hạn số ký tự
+const truncateText = (text, maxLength) => {
+  if (!text || text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
 // Component chính
 const GalleryBook = () => {
   // Cấu hình cho React Slick
@@ -91,15 +97,15 @@ const GalleryBook = () => {
               >
                 <Box>
                   <Typography variant="h2" sx={{ fontSize: "4rem", mb: 2 }}>
-                    {slide.title}
+                  {truncateText(slide.title, 30)} {/* Giới hạn 20 ký tự */}
                   </Typography>
                   <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                    {slide.description}
+                  {truncateText(slide.description, 50)} {/* Giới hạn 50 ký tự */}
                   </Typography>
                   <Button
                     variant="contained"
                     // color="primary"
-                    href="shop.html"
+                    href="/shop"
                     size="large"
                     sx={{backgroundColor: '#F86D72', '&:hover': { backgroundColor: 'black' }, borderRadius: '30px', px: 4, py: 2}}
                   >

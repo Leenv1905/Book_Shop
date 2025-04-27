@@ -30,7 +30,7 @@ const Sidebar = () => {
           Categories
         </Typography>
         <List>
-          {["All", "Romance", "Recipe", "Sci-Fi", "Lifestyle"].map((category) => (
+          {["Novels", "Romance", "Language", "Literature", "Detective"].map((category) => (
             <ListItem button key={category}>
               <ListItemText primary={category} />
             </ListItem>
@@ -41,10 +41,10 @@ const Sidebar = () => {
       {/* Tags */}
       <Box sx={{ mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Tags
+        Language
         </Typography>
         <List>
-          {["Sci-Fi", "Revenge", "Zombie", "Vampire"].map((tag) => (
+          {["English", "Vietnamese", "Chinese", "Russian", "French"].map((tag) => (
             <ListItem button key={tag}>
               <ListItemText primary={tag} />
             </ListItem>

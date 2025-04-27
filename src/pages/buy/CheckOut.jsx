@@ -64,7 +64,7 @@ const CheckOut = () => {
                 <TableCell colSpan={3} align="center">
                   <Typography variant="h6">
                     <Box component="span" className="order-label">
-                      Thanh toán cho đơn hàng số:
+                    Payment for order number:
                     </Box>{" "}
                     <Box component="span" className="order-number" sx={{ color: "red" }}>
                       #KKK67890
@@ -162,7 +162,7 @@ const CheckOut = () => {
             </Typography>
             <Stack spacing={2}>
               <Typography variant="h5">
-                <strong>Full Name:</strong> John Doe
+                <strong>Full Name:</strong> Lee Jung Joe
               </Typography>
               <Typography variant="h5">
                 <strong>Address:</strong> 123 Main St, Springfield

@@ -98,7 +98,6 @@ const BlogPage = () => {
         title="Blogs"
         breadcrumbs={[
           { label: "Home", href: "/" },
-          { label: "Blog" },
           { label: "Blog" } // Không có href → là trang hiện tại
         ]}
       />

@@ -43,7 +43,6 @@ const Cart = () => {
         breadcrumbs={[
           { label: 'Home', href: '/' },
           { label: 'Cart' },
-          { label: 'Cart' },
         ]}
       />
       <Box sx={{ p: 6, width: '80%', margin: 'auto', justifyContent: 'center' }}>
