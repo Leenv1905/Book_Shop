@@ -13,6 +13,7 @@ import {
   TableHead,
   TableRow,
   Alert,
+  Grid,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import axios from 'axios';
@@ -22,36 +23,40 @@ function AddDiscount() {
   const [discount, setDiscount] = useState({
     dateStart: '',
     dateEnd: '',
-    discountProducts: []
+    discountProducts: [],
   });
   const [products, setProducts] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    axios
-      .get('http://localhost:6868/api/product')
-      .then((response) => {
-        setProducts(
-          response.data.map((p) => ({
-            id: p.id,
-            name: p.name,
-            stock: p.quantity,
-            originalPrice: p.price
-          }))
-        );
-      })
-      .catch((err) => {
-        setError('Không thể tải danh sách sản phẩm');
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:6868/api/product');
+        const productList = response.data.map((p) => ({
+          id: p.id,
+          name: p.name,
+          stock: p.quantity,
+          originalPrice: p.price,
+        }));
+        if (productList.length === 0) {
+          setError('Không có sản phẩm để tạo chương trình khuyến mại');
+        }
+        setProducts(productList);
+      } catch (err) {
+        setError(err.message || 'Không thể tải danh sách sản phẩm');
         console.error('Lỗi khi lấy sản phẩm:', err);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    setDiscount(prev => ({ ...prev, [name]: value }));
+    setDiscount((prev) => ({ ...prev, [name]: value }));
     setError('');
   };
 
@@ -60,12 +65,12 @@ function AddDiscount() {
       const existingProduct = discount.discountProducts.find((p) => p.id === newValue.id);
       return existingProduct || { ...newValue, salePrice: '', quantity: '' };
     });
-    setDiscount(prev => ({ ...prev, discountProducts: updatedProducts }));
+    setDiscount((prev) => ({ ...prev, discountProducts: updatedProducts }));
     setError('');
   };
 
   const handleProductDetailChange = (id, field, value) => {
-    setDiscount(prev => {
+    setDiscount((prev) => {
       const newProducts = prev.discountProducts.map((product) => {
         if (product.id === id) {
           if (field === 'quantity') {
@@ -93,9 +98,9 @@ function AddDiscount() {
   };
 
   const handleRemoveProduct = (id) => {
-    setDiscount(prev => ({
+    setDiscount((prev) => ({
       ...prev,
-      discountProducts: prev.discountProducts.filter((p) => p.id !== id)
+      discountProducts: prev.discountProducts.filter((p) => p.id !== id),
     }));
     setError('');
   };
@@ -136,62 +141,169 @@ function AddDiscount() {
       discountProducts: discount.discountProducts.map((p) => ({
         productId: p.id,
         salePrice: parseFloat(p.salePrice),
-        quantity: parseInt(p.quantity)
-      }))
+        quantity: parseInt(p.quantity),
+      })),
     };
 
     try {
       await axios.post('http://localhost:6868/api/discounts', discountData);
       navigate('/admin/discount');
     } catch (err) {
-      setError(err.response?.data || 'Lỗi khi tạo mã giảm giá.');
+      setError(err.message || 'Lỗi khi tạo mã giảm giá');
       console.error('Lỗi khi tạo mã giảm giá:', err);
     }
   };
 
   if (loading) {
     return (
-      <Box sx={{ mt: 8 }}>
-        <Typography variant="h6">Đang tải...</Typography>
+      <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+        <Typography
+          variant="h6"
+          sx={{
+            color: 'text.secondary',
+            fontWeight: 'medium',
+            textAlign: 'center',
+          }}
+        >
+          Đang tải...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (error && products.length === 0) {
+    return (
+      <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+        <Alert
+          severity="error"
+          sx={{
+            borderRadius: '8px',
+            mb: 2,
+          }}
+        >
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/admin/discount')}
+          sx={{
+            borderRadius: '20px',
+            textTransform: 'none',
+            fontWeight: 'medium',
+            px: 3,
+            py: 1,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            '&:hover': {
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              bgcolor: 'primary.dark',
+            },
+          }}
+        >
+          Quay lại
+        </Button>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ mt: 8 }}>
-      <Typography variant="h5" gutterBottom>
-        Thêm chương trình khuyến mại
+    <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
+      <Typography
+        variant="h5"
+        gutterBottom
+        sx={{
+          fontWeight: 'bold',
+          color: '#1a2820',
+          letterSpacing: '0.5px',
+        }}
+      >
+        THÊM CHƯƠNG TRÌNH KHUYẾN MẠI
       </Typography>
-      <Paper sx={{ p: 3 }}>
+      <Paper
+        sx={{
+          p: 3,
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        }}
+      >
         <Box component="form" onSubmit={handleSubmit}>
-          <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-            <TextField
-              label="Ngày bắt đầu"
-              name="dateStart"
-              type="date"
-              value={discount.dateStart}
-              onChange={handleDateChange}
-              InputLabelProps={{ shrink: true }}
-              required
-              fullWidth
-            />
-            <TextField
-              label="Ngày kết thúc"
-              name="dateEnd"
-              type="date"
-              value={discount.dateEnd}
-              onChange={handleDateChange}
-              InputLabelProps={{ shrink: true }}
-              required
-              fullWidth
-            />
-          </Box>
-
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert
+              severity="error"
+              sx={{
+                borderRadius: '8px',
+                mb: 2,
+              }}
+            >
               {error}
             </Alert>
           )}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Ngày bắt đầu"
+                name="dateStart"
+                type="date"
+                value={discount.dateStart}
+                onChange={handleDateChange}
+                InputLabelProps={{ shrink: true }}
+                required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Ngày kết thúc"
+                name="dateEnd"
+                type="date"
+                value={discount.dateEnd}
+                onChange={handleDateChange}
+                InputLabelProps={{ shrink: true }}
+                required
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
+              />
+            </Grid>
+          </Grid>
 
           <Autocomplete
             multiple
@@ -206,9 +318,20 @@ function AddDiscount() {
               );
             }}
             renderOption={(props, option) => (
-              <li {...props}>
-                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc: {option.originalPrice.toLocaleString()} VNĐ)
-              </li>
+              <Box
+                component="li"
+                {...props}
+                sx={{
+                  py: 1,
+                  '&:hover': {
+                    backgroundColor: 'grey.50',
+                    transition: 'background-color 0.2s',
+                  },
+                }}
+              >
+                {option.id} - {option.name} (Tồn kho: {option.stock}, Giá gốc:{' '}
+                {option.originalPrice.toLocaleString()} VNĐ)
+              </Box>
             )}
             onChange={handleProductChange}
             value={discount.discountProducts}
@@ -217,17 +340,66 @@ function AddDiscount() {
                 {...params}
                 label="Chọn sản phẩm"
                 placeholder="Gõ ID hoặc tên sản phẩm"
-                margin="normal"
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    backgroundColor: 'background.paper',
+                    '&:hover fieldset': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'primary.main',
+                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                    },
+                  },
+                  '& .MuiInputLabel-root': {
+                    color: 'text.secondary',
+                    fontWeight: 'medium',
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'primary.main',
+                  },
+                }}
               />
             )}
             fullWidth
+            PaperComponent={({ children }) => (
+              <Paper
+                sx={{
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                }}
+              >
+                {children}
+              </Paper>
+            )}
           />
 
           {discount.discountProducts.length > 0 && (
-            <TableContainer sx={{ mt: 2 }}>
-              <Table>
+            <TableContainer
+              sx={{
+                mt: 3,
+                borderRadius: '8px',
+                border: '1px solid',
+                borderColor: 'grey.200',
+                overflow: 'hidden',
+              }}
+            >
+              <Table sx={{ minWidth: 650 }}>
                 <TableHead>
-                  <TableRow>
+                  <TableRow
+                    sx={{
+                      backgroundColor: 'grey.100',
+                      '& th': {
+                        fontWeight: 'bold',
+                        color: 'text.primary',
+                        py: 1.5,
+                        borderBottom: '2px solid',
+                        borderColor: 'grey.300',
+                      },
+                    }}
+                  >
                     <TableCell>ID</TableCell>
                     <TableCell>Tên sản phẩm</TableCell>
                     <TableCell>Tồn kho</TableCell>
@@ -239,7 +411,20 @@ function AddDiscount() {
                 </TableHead>
                 <TableBody>
                   {discount.discountProducts.map((product) => (
-                    <TableRow key={product.id}>
+                    <TableRow
+                      key={product.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'grey.50',
+                          transition: 'background-color 0.2s',
+                        },
+                        '& td': {
+                          py: 1,
+                          borderBottom: '1px solid',
+                          borderColor: 'grey.200',
+                        },
+                      }}
+                    >
                       <TableCell>{product.id}</TableCell>
                       <TableCell>{product.name}</TableCell>
                       <TableCell>{product.stock}</TableCell>
@@ -254,6 +439,19 @@ function AddDiscount() {
                           size="small"
                           required
                           inputProps={{ min: 0, max: product.originalPrice }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '8px',
+                              backgroundColor: 'background.paper',
+                              '&:hover fieldset': {
+                                borderColor: 'primary.main',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: 'primary.main',
+                                boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                              },
+                            },
+                          }}
                         />
                       </TableCell>
                       <TableCell>
@@ -266,14 +464,40 @@ function AddDiscount() {
                           size="small"
                           required
                           inputProps={{ min: 0, max: product.stock }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              borderRadius: '8px',
+                              backgroundColor: 'background.paper',
+                              '&:hover fieldset': {
+                                borderColor: 'primary.main',
+                              },
+                              '&.Mui-focused fieldset': {
+                                borderColor: 'primary.main',
+                                boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+                              },
+                            },
+                          }}
                         />
                       </TableCell>
                       <TableCell>
                         <Button
-                          variant="contained"
+                          variant="outlined"
                           color="error"
                           size="small"
                           onClick={() => handleRemoveProduct(product.id)}
+                          sx={{
+                            borderRadius: '20px',
+                            textTransform: 'none',
+                            fontWeight: 'medium',
+                            px: 2,
+                            py: 0.5,
+                            borderColor: 'error.main',
+                            color: 'error.main',
+                            '&:hover': {
+                              borderColor: 'error.dark',
+                              bgcolor: 'grey.50',
+                            },
+                          }}
                         >
                           Xóa
                         </Button>
@@ -285,17 +509,48 @@ function AddDiscount() {
             </TableContainer>
           )}
 
-          <Box sx={{ mt: 3 }}>
+          <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
             <Button
               type="submit"
               variant="contained"
               color="primary"
-              sx={{ mr: 2 }}
               disabled={discount.discountProducts.length === 0}
+              sx={{
+                borderRadius: '20px',
+                textTransform: 'none',
+                fontWeight: 'medium',
+                px: 3,
+                py: 1,
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  bgcolor: 'primary.dark',
+                },
+                '&.Mui-disabled': {
+                  bgcolor: 'grey.300',
+                  color: 'grey.600',
+                },
+              }}
             >
               Lưu
             </Button>
-            <Button variant="outlined" onClick={() => navigate('/admin/discount')}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/admin/discount')}
+              sx={{
+                borderRadius: '20px',
+                textTransform: 'none',
+                fontWeight: 'medium',
+                px: 3,
+                py: 1,
+                borderColor: 'grey.400',
+                color: 'text.primary',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  bgcolor: 'grey.50',
+                },
+              }}
+            >
               Hủy
             </Button>
           </Box>
