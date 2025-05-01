@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -18,50 +18,77 @@ import {
   IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
 
-// Dữ liệu mẫu
-const products = [
-  { id: 1, name: 'Sách A' },
-  { id: 2, name: 'Sách B' },
-];
+// Cấu hình axios
+const api = axios.create({
+  baseURL: 'http://localhost:6868',
+  headers: { 'Content-Type': 'application/json' },
+});
 
-const suppliers = [
-  { id: 1, name: 'Nhà cung cấp A' },
-  { id: 2, name: 'Nhà cung cấp B' },
-];
-
-const importProducts = [
-  {
-    id: 1,
-    supplierId: 1,
-    importDate: '2025-04-01',
-    items: [
-      { productId: 1, price: 40000, quantity: 50, name: 'Sách A' },
-      { productId: 2, price: 60000, quantity: 30, name: 'Sách B' },
-    ],
-  },
-  {
-    id: 2,
-    supplierId: 2,
-    importDate: '2025-04-02',
-    items: [
-      { productId: 1, price: 45000, quantity: 20, name: 'Sách A' },
-    ],
-  },
-];
+// Thêm token JWT nếu có
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 function EditImportProduct() {
   const { importId } = useParams();
   const navigate = useNavigate();
-  const initialImport = importProducts.find((i) => i.id === parseInt(importId)) || {};
 
   // State cho thông tin phiếu nhập
   const [importProduct, setImportProduct] = useState({
-    supplierId: initialImport.supplierId || null,
-    importDate: initialImport.importDate || '',
-    items: initialImport.items || [],
+    supplierId: null,
+    importDate: '',
+    items: [],
   });
+  const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
+
+  // Lấy dữ liệu khi component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Lấy thông tin phiếu nhập
+        const importResponse = await api.get(`/api/import-products/${importId}`);
+        const importData = importResponse.data;
+        setImportProduct({
+          supplierId: importData.details[0]?.supplier?.id || null,
+          importDate: importData.importDate,
+          items: importData.details.map((detail) => ({
+            productId: detail.product.id,
+            name: detail.productName,
+            price: detail.importPrice.toString(),
+            quantity: detail.quantity.toString(),
+          })),
+        });
+
+        // Lấy danh sách sản phẩm
+        const productResponse = await api.get('/api/product');
+        setProducts(productResponse.data);
+
+        // Lấy danh sách nhà cung cấp
+        const supplierResponse = await api.get('/api/supplier');
+        setSuppliers(supplierResponse.data);
+      } catch (err) {
+        if (err.response?.status === 404) {
+          setNotFound(true);
+        } else {
+          setError('Lỗi khi lấy dữ liệu: ' + (err.response?.data?.message || err.message));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [importId]);
 
   // Xử lý thay đổi nhà cung cấp
   const handleSupplierChange = (event, newValue) => {
@@ -101,6 +128,7 @@ function EditImportProduct() {
   const isValid = () => {
     return (
       importProduct.supplierId !== null &&
+      importProduct.importDate !== '' &&
       importProduct.items.length > 0 &&
       importProduct.items.every(
         (item) => item.price !== '' && item.quantity !== '' && parseInt(item.quantity) > 0
@@ -109,29 +137,37 @@ function EditImportProduct() {
   };
 
   // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValid()) {
-      setError('Vui lòng chọn nhà cung cấp và điền đầy đủ giá, số lượng cho tất cả sản phẩm');
+      setError('Vui lòng chọn nhà cung cấp, điền ngày nhập và đầy đủ giá, số lượng cho tất cả sản phẩm');
       return;
     }
 
     const importData = {
-      id: parseInt(importId),
-      supplierId: importProduct.supplierId,
-      importDate: importProduct.importDate,
-      items: importProduct.items.map(({ productId, price, quantity }) => ({
+      importDate: new Date(importProduct.importDate).toISOString(),
+      details: importProduct.items.map(({ productId, name, price, quantity }) => ({
         productId,
-        price: parseFloat(price) || 0,
+        productName: name,
+        importPrice: parseFloat(price) || 0,
         quantity: parseInt(quantity) || 0,
+        supplierId: importProduct.supplierId,
       })),
     };
-    console.log('Cập nhật phiếu nhập:', importData);
-    navigate('/admin/import-products');
+
+    setLoading(true);
+    try {
+      await api.put(`/api/import-products/${importId}`, importData);
+      navigate('/admin/import-products');
+    } catch (err) {
+      setError('Lỗi khi cập nhật phiếu nhập hàng: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (!initialImport.id) {
+  if (notFound) {
     return (
       <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
         <Typography
@@ -141,7 +177,7 @@ function EditImportProduct() {
             color: '#1a2820',
           }}
         >
-          Không tìm thấy phiếu nhập
+          Không tìm thấy phiếu nhập #{importId}
         </Typography>
       </Box>
     );
@@ -215,6 +251,7 @@ function EditImportProduct() {
                     }}
                   />
                 )}
+                disabled={loading}
                 fullWidth
               />
             </Grid>
@@ -252,6 +289,7 @@ function EditImportProduct() {
                     }}
                   />
                 )}
+                disabled={loading}
                 fullWidth
               />
             </Grid>
@@ -315,7 +353,7 @@ function EditImportProduct() {
                           }
                           size="small"
                           required
-                          inputProps={{ min: 0 }}
+                          inputProps={{ min: 0, step: '0.01' }}
                           sx={{
                             '& .MuiOutlinedInput-root': {
                               borderRadius: '12px',
@@ -386,7 +424,7 @@ function EditImportProduct() {
               type="submit"
               variant="contained"
               color="primary"
-              disabled={importProduct.items.length === 0}
+              disabled={loading || importProduct.items.length === 0}
               sx={{
                 borderRadius: '20px',
                 textTransform: 'none',
@@ -404,11 +442,12 @@ function EditImportProduct() {
                 },
               }}
             >
-              Lưu
+              {loading ? 'Đang xử lý...' : 'Lưu'}
             </Button>
             <Button
               variant="outlined"
               onClick={() => navigate('/admin/import-products')}
+              disabled={loading}
               sx={{
                 borderRadius: '20px',
                 textTransform: 'none',
