@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -14,127 +14,70 @@ import {
   Collapse,
   IconButton,
   TablePagination,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
 
-// Dữ liệu mẫu
-const products = [
-  { id: 1, name: 'Sách A' },
-  { id: 2, name: 'Sách B' },
-  { id: 3, name: 'Sách C' },
-  { id: 4, name: 'Sách D' },
-];
-
-const suppliers = [
-  { id: 1, name: 'Nhà cung cấp A' },
-  { id: 2, name: 'Nhà cung cấp B' },
-  { id: 3, name: 'Nhà cung cấp C' },
-  { id: 4, name: 'Nhà cung cấp D' },
-];
-
-const importProducts = [
-  {
-    id: 1,
-    supplierId: 1,
-    importDate: '2025-04-01',
-    items: [
-      { productId: 1, price: 40000, quantity: 50 },
-      { productId: 2, price: 60000, quantity: 30 },
-    ],
-  },
-  {
-    id: 2,
-    supplierId: 2,
-    importDate: '2025-04-02',
-    items: [
-      { productId: 1, price: 45000, quantity: 20 },
-    ],
-  },
-  {
-    id: 3,
-    supplierId: 3,
-    importDate: '2025-04-03',
-    items: [
-      { productId: 3, price: 50000, quantity: 40 },
-      { productId: 4, price: 70000, quantity: 10 },
-    ],
-  },
-  {
-    id: 4,
-    supplierId: 4,
-    importDate: '2025-04-04',
-    items: [
-      { productId: 2, price: 62000, quantity: 25 },
-    ],
-  },
-  {
-    id: 5,
-    supplierId: 1,
-    importDate: '2025-04-05',
-    items: [
-      { productId: 1, price: 42000, quantity: 60 },
-      { productId: 3, price: 48000, quantity: 15 },
-    ],
-  },
-  {
-    id: 6,
-    supplierId: 2,
-    importDate: '2025-04-06',
-    items: [
-      { productId: 4, price: 75000, quantity: 20 },
-    ],
-  },
-  {
-    id: 7,
-    supplierId: 3,
-    importDate: '2025-04-07',
-    items: [
-      { productId: 2, price: 61000, quantity: 35 },
-      { productId: 3, price: 49000, quantity: 20 },
-    ],
-  },
-  {
-    id: 8,
-    supplierId: 4,
-    importDate: '2025-04-08',
-    items: [
-      { productId: 1, price: 43000, quantity: 30 },
-    ],
-  },
-  {
-    id: 9,
-    supplierId: 1,
-    importDate: '2025-04-09',
-    items: [
-      { productId: 4, price: 72000, quantity: 15 },
-      { productId: 2, price: 60000, quantity: 40 },
-    ],
-  },
-  {
-    id: 10,
-    supplierId: 2,
-    importDate: '2025-04-10',
-    items: [
-      { productId: 3, price: 51000, quantity: 25 },
-    ],
-  },
-];
+// Cấu hình axios với base URL
+const api = axios.create({
+  baseURL: 'http://localhost:6868',
+  headers: { 'Content-Type': 'application/json' },
+});
 
 function ImportProductList() {
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
+  const [importProducts, setImportProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Lấy dữ liệu từ backend khi component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Lấy danh sách phiếu nhập hàng
+        const importResponse = await api.get('/api/import-products');
+        setImportProducts(importResponse.data);
+
+        // Lấy danh sách sản phẩm
+        const productResponse = await api.get('/api/product');
+        setProducts(productResponse.data);
+
+        // Lấy danh sách nhà cung cấp
+        const supplierResponse = await api.get('/api/supplier');
+        setSuppliers(supplierResponse.data);
+
+        setError(null);
+      } catch (err) {
+        setError('Lỗi khi lấy dữ liệu: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleEditImport = (importId) => {
     navigate(`/admin/edit-import-product/${importId}`);
   };
 
-  const handleDeleteImport = (importId) => {
+  const handleDeleteImport = async (importId) => {
     if (window.confirm('Bạn có chắc muốn xóa phiếu nhập này?')) {
-      console.log(`Xóa phiếu nhập với ID: ${importId}`);
-      // Gọi API để xóa tại đây
+      try {
+        await api.delete(`/api/import-products/${importId}`);
+        setImportProducts(importProducts.filter((ip) => ip.id !== importId));
+        setError(null);
+      } catch (err) {
+        setError('Lỗi khi xóa phiếu nhập: ' + (err.response?.data?.message || err.message));
+      }
     }
   };
 
@@ -156,8 +99,12 @@ function ImportProductList() {
     return supplier ? supplier.name : 'Không xác định';
   };
 
-  const getTotalQuantity = (items) => {
-    return items.reduce((total, item) => total + item.quantity, 0);
+  const getTotalQuantity = (details) => {
+    return details.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const formatDate = (isoDate) => {
+    return isoDate ? new Date(isoDate).toISOString().split('T')[0] : 'Không xác định';
   };
 
   const handleChangePage = (event, newPage) => {
@@ -168,6 +115,22 @@ function ImportProductList() {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ mt: 4, px: 2 }}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
@@ -261,8 +224,8 @@ function ImportProductList() {
                     }}
                   >
                     <TableCell>{importProduct.id}</TableCell>
-                    <TableCell>{importProduct.importDate}</TableCell>
-                    <TableCell>{getTotalQuantity(importProduct.items)}</TableCell>
+                    <TableCell>{formatDate(importProduct.importDate)}</TableCell>
+                    <TableCell>{getTotalQuantity(importProduct.details)}</TableCell>
                     <TableCell>
                       <IconButton
                         onClick={(e) => {
@@ -329,13 +292,13 @@ function ImportProductList() {
                               >
                                 <TableCell>ID sản phẩm</TableCell>
                                 <TableCell>Tên sản phẩm</TableCell>
-                                <TableCell>Giá</TableCell>
+                                <TableCell>Giá nhập</TableCell>
                                 <TableCell>Số lượng</TableCell>
                                 <TableCell>Nhà cung cấp</TableCell>
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {importProduct.items.map((item, index) => (
+                              {importProduct.details.map((item, index) => (
                                 <TableRow
                                   key={index}
                                   sx={{
@@ -350,13 +313,13 @@ function ImportProductList() {
                                     },
                                   }}
                                 >
-                                  <TableCell>{item.productId}</TableCell>
+                                  <TableCell>{item.product.id}</TableCell>
                                   <TableCell sx={{ fontWeight: 'medium' }}>
-                                    {getProductName(item.productId)}
+                                    {item.product.name}
                                   </TableCell>
-                                  <TableCell>{item.price.toLocaleString()} VNĐ</TableCell>
+                                  <TableCell>{item.importPrice.toLocaleString()} VNĐ</TableCell>
                                   <TableCell>{item.quantity}</TableCell>
-                                  <TableCell>{getSupplierName(importProduct.supplierId)}</TableCell>
+                                  <TableCell>{item.supplier.name}</TableCell>
                                 </TableRow>
                               ))}
                             </TableBody>
