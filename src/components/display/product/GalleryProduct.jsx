@@ -63,7 +63,7 @@ const GalleryProduct = ({ images }) => {
                 alt={`thumb-${index}`} 
                 style={{
                   width: "100%", 
-                  // maxWidth: "800px",
+                  // maxWidth: "300px",
                   marginTop: "10px",
                   borderRadius: "8px", 
                   border: "2px solid transparent"
@@ -105,7 +105,7 @@ const GalleryProduct = ({ images }) => {
                 alt={`product-${index}`} 
                 style={{
                   width: "100%",
-                  // maxWidth: "800px",
+                  maxWidth: "450px",
                   borderRadius: "8px"
                 }} 
               />
