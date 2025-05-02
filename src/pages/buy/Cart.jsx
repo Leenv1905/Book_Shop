@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Add, Remove, Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../../components/action/CartContext'; // Import useCart từ CartContext
+import { useCart } from '../../components/action/CartContext';  // Import useCart từ CartContext
 import InstagramGallery from '../../components/display/GroupItems/InstagramGallery';
 import LatestPosts from '../../components/display/post/LatestPosts';
 import BreadcrumbsComponent from '../../components/display/free/BreadcrumbsComponent';
@@ -33,7 +33,19 @@ const Cart = () => {
   };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.salePrice || item.price;
+      return total + price * item.quantity;
+    }, 0);
+  };
+
+  const handleQuantityChange = (id, value) => {
+    const quantity = parseInt(value);
+    if (isNaN(quantity) || quantity < 1) {
+      updateQuantity(id, 1);
+    } else {
+      updateQuantity(id, quantity);
+    }
   };
 
   return (
@@ -100,9 +112,7 @@ const Cart = () => {
                       >
                         <IconButton
                           color="default"
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
-                          }
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
                         >
                           <Remove />
                         </IconButton>
@@ -110,25 +120,21 @@ const Cart = () => {
                           value={item.quantity}
                           inputProps={{
                             min: 1,
-                            style: { textAlign: 'center', width: 40, color: 'red' },
+                            style: { textAlign: 'center', width: 40, color: 'text.primary' },
                           }}
-                          onChange={(e) =>
-                            updateQuantity(item.id, parseInt(e.target.value) || 1)
-                          }
+                          onChange={(e) => handleQuantityChange(item.id, e.target.value)}
                         />
                         <IconButton
                           color="default"
-                          onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
-                          }
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
                         >
                           <Add />
                         </IconButton>
                       </Stack>
                     </TableCell>
                     <TableCell align="center">
-                      <Typography variant="h6" color="red">
-                        ${item.price * item.quantity}
+                      <Typography variant="h6" color="error.main">
+                        {(item.salePrice || item.price) * item.quantity} VNĐ
                       </Typography>
                     </TableCell>
                     <TableCell align="center">
@@ -160,8 +166,8 @@ const Cart = () => {
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <Typography variant="h6" color="red" sx={{ mr: 5 }}>
-                      ${calculateSubtotal().toFixed(2)}
+                    <Typography variant="h6" color="error.main" sx={{ mr: 5 }}>
+                      {calculateSubtotal()} VNĐ
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -172,8 +178,8 @@ const Cart = () => {
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <Typography variant="h6" color="red" sx={{ mr: 5 }}>
-                      ${calculateSubtotal().toFixed(2)}
+                    <Typography variant="h6" color="error.main" sx={{ mr: 5 }}>
+                      {calculateSubtotal()} VNĐ
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -202,15 +208,16 @@ const Cart = () => {
           </Button>
           <Button
             variant="contained"
+            disabled={cartItems.length === 0}
             sx={{
               p: 2,
-              backgroundColor: '#F86D72',
+              backgroundColor: cartItems.length === 0 ? 'grey.500' : '#F86D72',
               fontWeight: 'bold',
               color: 'white',
               fontSize: '20px',
               borderRadius: 20,
               '&:hover': {
-                backgroundColor: '#183e3e',
+                backgroundColor: cartItems.length === 0 ? 'grey.500' : '#183e3e',
               },
             }}
             onClick={handleProceedToCheckout}
@@ -219,7 +226,6 @@ const Cart = () => {
           </Button>
         </Stack>
 
-        {/* Snackbar hiển thị thông báo */}
         <Snackbar
           open={notification.open}
           autoHideDuration={3000}
