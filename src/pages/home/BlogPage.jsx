@@ -143,6 +143,8 @@ const BlogPage = () => {
       </Box>
 
       <PaginationComponent />
+      // Chuyển trang, truyền page và totalPages vào PaginationComponent
+      // Do trang này dữ liệu mẫu, chưa làm động nên phần này sẽ Lỗi
       <InstagramGallery />
       <CustomerReviewsSlider />
       <CategoriesSection />

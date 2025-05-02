@@ -44,7 +44,7 @@ const ShopPage = () => {
           <ProductList />
 
           {/* Pagination */}
-          <PaginationComponent />
+          {/* <PaginationComponent /> */}
         </Grid>
       </Grid>
     </Container>

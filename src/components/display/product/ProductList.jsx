@@ -1,99 +1,100 @@
-// import React from 'react';
-// import { Grid } from '@mui/material';
-// import ProductCard from './ProductCard'; // Đường dẫn tới ProductCard
 
-// const ProductList = () => {
-//   // Dữ liệu mẫu (Bạn có thể thay thế bằng dữ liệu từ API hoặc props)
-//   const products = [
-//     {
-//       id: 1,
-//       name: 'Product 1',
-//       author: 'Author 1',
-//       image: '/demo/images/product-item1.png',
-//       discount: '10% OFF',
-//       price: 20.99,
-//       rating: 4,
-//     },
-//     {
-//       id: 2,
-//       name: 'Product 2',
-//       author: 'Author 2',
-//       image: '/demo/images/product-item1.png',
-//       discount: '15% OFF',
-//       price: 15.49,
-//       rating: 5,
-//     },
-//     {
-//       id: 3,
-//       name: 'Product 3',
-//       author: 'Author 3',
-//       image: '/demo/images/product-item1.png',
-//       discount: null, // Không có giảm giá
-//       price: 30.0,
-//       rating: 3,
-//     },
-//     {
-//       id: 4,
-//       name: 'Product 3',
-//       author: 'Author 3',
-//       image: '/demo/images/product-item1.png',
-//       discount: null, // Không có giảm giá
-//       price: 30.0,
-//       rating: 3,
-//     },
-//     {
-//       id: 5,
-//       name: 'Product 3',
-//       author: 'Author 3',
-//       image: '/demo/images/product-item1.png',
-//       discount: null, // Không có giảm giá
-//       price: 30.0,
-//       rating: 3,
-//     },
-//   ];
-
-//   return (
-//     <Grid container spacing={2}>
-//       {products.map((product) => (
-//         <Grid item xs={12} sm={6} md={3} key={product.id}>
-//           <ProductCard product={product} />
-//         </Grid>
-//       ))}
-//     </Grid>
-//   );
-// };
-
-// export default ProductList;
-
-import React from 'react';
-import { Grid, Box } from '@mui/material';
-import ProductCard from './ProductCard'; 
-import { Height } from '@mui/icons-material';
-
-
-const ProductList = () => {
-// Dữ liệu mẫu (Có thể thay thế bằng dữ liệu từ API hoặc props)
-  const products = [
-    { id: 1, name: 'Product 1', author: 'Author 1', image: '/demo/images/product-item1.png', discount: '10% OFF', price: 20.99, rating: 4 },
-    { id: 2, name: 'Product 2', author: 'Author 2', image: '/demo/images/product-item1.png', discount: '15% OFF', price: 15.49, rating: 5 },
-    { id: 3, name: 'Product 3', author: 'Author 3', image: '/demo/images/product-item1.png', discount: null, price: 30.0, rating: 3 },
-    { id: 4, name: 'Product 4', author: 'Author 4', image: '/demo/images/product-item1.png', discount: '20% OFF', price: 25.99, rating: 4 },
-    { id: 5, name: 'Product 5', author: 'Author 5', image: '/demo/images/product-item1.png', discount: null, price: 18.99, rating: 3 },
-    { id: 1, name: 'Product 1', author: 'Author 1', image: '/demo/images/product-item1.png', discount: '10% OFF', price: 20.99, rating: 4 },
-    { id: 2, name: 'Product 2', author: 'Author 2', image: '/demo/images/product-item1.png', discount: '15% OFF', price: 15.49, rating: 5 },
-    { id: 3, name: 'Product 3', author: 'Author 3', image: '/demo/images/product-item1.png', discount: null, price: 30.0, rating: 3 },
-  ];
-
-  return (
-    <Grid container spacing={2}>
-      {products.map((product) => (
-        <Grid item xs={12} sm={6} md={4} lg={3} key={product.id} sx={{ display: "flex", justifyContent: "center" }}> {/* Thêm sx để canh chỉnh card */}
-            <ProductCard product={product}/>
-        </Grid>
-      ))}
-    </Grid>
-  );
-};
-
-export default ProductList;
-
+        import React, { useState, useEffect } from 'react';
+        import { Grid, Box, Typography, CircularProgress } from '@mui/material';
+        import ProductCard from './ProductCard';
+        import PaginationComponent from '../free/PaginationComponent';
+        
+        const ProductList = () => {
+          const [products, setProducts] = useState([]);
+          const [page, setPage] = useState(0);
+          const [size] = useState(12); // Số sản phẩm mỗi trang
+          const [loading, setLoading] = useState(true);
+          const [error, setError] = useState('');
+        
+          useEffect(() => {
+            setLoading(true);
+            fetch('http://localhost:6868/api/product')
+              .then((res) => {
+                if (!res.ok) throw new Error('Không thể tải danh sách sản phẩm');
+                return res.json();
+              })
+              .then((data) => {
+        // Ánh xạ ProductDTO sang định dạng cho ProductCard
+                const mappedProducts = data.map((product) => ({
+                  id: product.id,
+                  name: product.name,
+                  author: product.author,
+                  image: product.images?.[0]?.imagePath || '/demo/images/placeholder.png',
+                  discount: product.discountPercentage ? `${product.discountPercentage}% OFF` : null,
+                  price: product.price,
+                  salePrice: product.salePrice || null,
+                  rating: 4, // Giả lập, chờ EntityRating
+                }));
+                setProducts(mappedProducts);
+                setLoading(false);
+              })
+              .catch((err) => {
+                setError('Lỗi khi tải sản phẩm');
+                setLoading(false);
+                console.error('Error:', err);
+              });
+          }, []);
+        
+          const totalPages = Math.ceil(products.length / size);
+          const displayedProducts = products.slice(page * size, (page + 1) * size);
+        
+          const handlePageChange = (newPage) => {
+            setPage(newPage);
+          };
+        
+          if (loading) {
+            return (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <CircularProgress />
+              </Box>
+            );
+          }
+        
+          if (error) {
+            return (
+              <Box sx={{ mt: 4, textAlign: 'center' }}>
+                <Typography color="error">{error}</Typography>
+              </Box>
+            );
+          }
+        
+          if (products.length === 0) {
+            return (
+              <Box sx={{ mt: 4, textAlign: 'center' }}>
+                <Typography>Không có sản phẩm</Typography>
+              </Box>
+            );
+          }
+        
+          return (
+            <>
+              <Grid container spacing={2}>
+                {displayedProducts.map((product) => (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    lg={3}
+                    key={product.id}
+                    sx={{ display: 'flex', justifyContent: 'center' }}
+                  >
+                    <ProductCard product={product} />
+                  </Grid>
+                ))}
+              </Grid>
+              <PaginationComponent
+                page={page}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </>
+          );
+        };
+        
+        export default ProductList;
