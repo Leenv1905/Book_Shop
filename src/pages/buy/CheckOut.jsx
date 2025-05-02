@@ -1,4 +1,5 @@
 // import { useCart } from '../../components/action/CartContext'; // Import useCart từ CartContext
+
 import React from "react";
 import {
   Box,
@@ -17,11 +18,11 @@ import BreadcrumbsComponent from "../../components/display/free/BreadcrumbsCompo
 import InstagramGallery from "../../components/display/GroupItems/InstagramGallery";
 import { useNavigate } from "react-router-dom";
 import BuyDone from "./BuyDone";
-import { useCart } from '../../components/action/CartContext'; // Import useCart từ CartContext
+import { useCart } from '../../components/action/CartContext';
 
 const CheckOut = () => {
   const navigate = useNavigate();
-  const { cartItems, clearCart } = useCart(); // Lấy cartItems, clearCart từ CartContext
+  const { cartItems, clearCart } = useCart();
 
   const handleToCart = () => {
     navigate("/cart");
@@ -31,14 +32,19 @@ const CheckOut = () => {
 
   const handleOpen = () => {
     setOpen(true);
-    clearCart(); // Xóa giỏ hàng khi đặt hàng
+    clearCart();
   };
   const handleClose = () => setOpen(false);
 
   // Tính tổng tiền
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+    return cartItems.reduce((total, item) => {
+      const price = item.salePrice || item.price;
+      return total + price * item.quantity;
+    }, 0);
   };
+  // return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
+  // .toFixed(2) NẾU DÙNG TIỀN USD
 
   return (
     <>
@@ -64,9 +70,9 @@ const CheckOut = () => {
                 <TableCell colSpan={3} align="center">
                   <Typography variant="h6">
                     <Box component="span" className="order-label">
-                    Payment for order number:
+                      Payment for order number:
                     </Box>{" "}
-                    <Box component="span" className="order-number" sx={{ color: "red" }}>
+                    <Box component="span" className="order-number" sx={{ color: "error.main" }}>
                       #KKK67890
                     </Box>
                   </Typography>
@@ -111,8 +117,8 @@ const CheckOut = () => {
                       <Typography variant="h5">{item.quantity}</Typography>
                     </TableCell>
                     <TableCell align="center">
-                      <Typography variant="h5">
-                        ${(item.price * item.quantity).toFixed(2)}
+                      <Typography variant="h5" color="error.main">
+                        {(item.salePrice || item.price) * item.quantity} VNĐ
                       </Typography>
                     </TableCell>
                   </TableRow>
@@ -133,8 +139,8 @@ const CheckOut = () => {
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography variant="h6" color="red" sx={{ mr: 5 }}>
-                    ${calculateSubtotal()}
+                  <Typography variant="h6" color="error.main" sx={{ mr: 5 }}>
+                    {calculateSubtotal()} VNĐ
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -145,8 +151,8 @@ const CheckOut = () => {
                   </Typography>
                 </TableCell>
                 <TableCell align="right">
-                  <Typography variant="h6" color="red" sx={{ mr: 5 }}>
-                    ${calculateSubtotal()}
+                  <Typography variant="h6" color="error.main" sx={{ mr: 5 }}>
+                    {calculateSubtotal()} VNĐ
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -207,14 +213,15 @@ const CheckOut = () => {
           </Button>
           <Button
             variant="contained"
+            disabled={cartItems.length === 0}
             sx={{
-              backgroundColor: "#F86D72",
+              backgroundColor: cartItems.length === 0 ? "grey.500" : "#F86D72",
               fontWeight: "bold",
               p: 2,
               fontSize: "20px",
               borderRadius: 20,
               color: "white",
-              "&:hover": { backgroundColor: "#183e3e" },
+              "&:hover": { backgroundColor: cartItems.length === 0 ? "grey.500" : "#183e3e" },
             }}
             onClick={handleOpen}
           >
