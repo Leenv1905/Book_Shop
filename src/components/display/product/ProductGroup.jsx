@@ -10,7 +10,7 @@ const ProductGroup = ({ title, products }) => {
         mb: 4,
         border: "1px solid #ddd", // (Tuỳ chọn) Thêm viền nhạt để phân biệt
         borderRadius: 3, // (Tuỳ chọn) Tạo bo góc nếu cần
-        p: 1, // Padding 1
+        p: 2, // Padding 1
         }}>
       <Typography variant="h4"
       sx={{
