@@ -30,7 +30,7 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice, i
         boxShadow: "none", // Tắt bóng đổ
         // border: "1px solid #ddd", // (Tuỳ chọn) Thêm viền nhạt để phân biệt
         // borderRadius: "8px", // (Tuỳ chọn) Tạo bo góc nếu cần 
-        width: 350,  // Kích thước chiều rộng của card
+        width: '100%',  // Kích thước chiều rộng của card
         height: 150, // Kích thước chiều cao của card
         // Hiển thị CardActions khi hover
         overflow: 'hidden',

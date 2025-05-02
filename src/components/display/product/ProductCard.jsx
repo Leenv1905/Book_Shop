@@ -205,7 +205,7 @@ const ProductCard = ({ product }) => {
         height="auto"
         image={product.image}
         alt={product.name}
-        sx={{ borderRadius: 2, boxShadow: 2, cursor: 'pointer' }}
+        sx={{ borderRadius: 2, boxShadow: 2, cursor: 'pointer', maxHeight: '300px' }}
         onClick={handleNavigate}
       />
 
