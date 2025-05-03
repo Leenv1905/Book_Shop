@@ -13,73 +13,130 @@ import {
   FormControl,
   Grid,
 } from '@mui/material';
+import axios from 'axios';
 
-// Danh sách vai trò có thể chọn
-const roleOptions = ['Admin', 'User', 'Moderator'];
+// Danh sách vai trò có thể chọn (bỏ Moderator)
+const roleOptions = ['ROLE_ADMIN', 'ROLE_USER'];
 
 function CreateUser() {
   const navigate = useNavigate();
 
   // State cho thông tin người dùng
   const [user, setUser] = useState({
-    name: '',
+    fullName: '',
     email: '',
     phoneNumber: '',
     address: '',
     birthDay: '',
     gender: '',
-    avata: '',
+    avatar: '',
     roles: [],
+    password: '',
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
     setError('');
+    setSuccess('');
+  };
+
+  // Xử lý thay đổi confirmPassword
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    setError('');
+    setSuccess('');
   };
 
   // Xử lý thay đổi roles
   const handleRolesChange = (e) => {
     setUser((prev) => ({ ...prev, roles: e.target.value }));
     setError('');
+    setSuccess('');
   };
 
   // Kiểm tra dữ liệu hợp lệ
   const isValid = () => {
-    return (
-      user.name.trim() !== '' &&
-      user.email.trim() !== '' &&
-      user.phoneNumber.trim() !== '' &&
-      user.address.trim() !== '' &&
-      user.birthDay !== '' &&
-      user.gender !== '' &&
-      user.roles.length > 0
-    );
+    if (
+      user.fullName.trim() === '' ||
+      user.email.trim() === '' ||
+      user.phoneNumber.trim() === '' ||
+      user.address.trim() === '' ||
+      user.birthDay === '' ||
+      user.gender === '' ||
+      user.roles.length === 0 ||
+      user.password.trim() === ''
+    ) {
+      return false;
+    }
+    if (user.password !== confirmPassword) {
+      setError('Mật khẩu và xác nhận mật khẩu không khớp.');
+      return false;
+    }
+    return true;
   };
 
   // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValid()) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      if (!error) setError('Vui lòng điền đầy đủ thông tin.');
       return;
     }
 
     const userData = {
-      name: user.name,
+      fullName: user.fullName,
       email: user.email,
       phoneNumber: user.phoneNumber,
       address: user.address,
       birthDay: user.birthDay,
       gender: user.gender,
-      avata: user.avata || 'https://via.placeholder.com/40',
-      roles: user.roles,
+      avatar: user.avatar || 'https://via.placeholder.com/40',
+      roles: user.roles.join(','), // Chuyển mảng thành chuỗi
+      password: user.password,
     };
-    console.log('Thêm user:', userData);
-    navigate('/admin/user');
+
+    try {
+      const response = await axios.post('http://localhost:6868/api/user', userData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Tạo người dùng thành công:', response.data);
+      setSuccess('Tạo người dùng thành công!');
+      setTimeout(() => navigate('/admin/user'), 2000); // Chuyển hướng sau 2 giây
+    } catch (err) {
+      setError('Lỗi khi tạo người dùng: ' + (err.response?.data || err.message));
+      console.error('Lỗi:', err);
+    }
+  };
+
+  // Style chung cho TextField và Select
+  const inputStyle = {
+    mb: 2,
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: 'background.paper',
+      '&:hover fieldset': {
+        borderColor: 'primary.main',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'primary.main',
+        boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'text.secondary',
+      fontWeight: 'medium',
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'primary.main',
+    },
   };
 
   return (
@@ -103,50 +160,29 @@ function CreateUser() {
         }}
       >
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Hiển thị lỗi nếu có */}
+          {/* Hiển thị thông báo */}
           {error && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-                borderRadius: '8px',
-              }}
-            >
+            <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
               {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2, borderRadius: '8px' }}>
+              {success}
             </Alert>
           )}
 
           <Grid container spacing={2}>
-            {/* Cột trái */}
+            {/* Cột trái: fullName, email, phoneNumber, birthDay, address */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Tên"
-                name="name"
-                value={user.name}
+                label="Họ và tên"
+                name="fullName"
+                value={user.fullName}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -156,27 +192,7 @@ function CreateUser() {
                 value={user.email}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -185,27 +201,7 @@ function CreateUser() {
                 value={user.phoneNumber}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -216,31 +212,8 @@ function CreateUser() {
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
-            </Grid>
-            {/* Cột phải */}
-            <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 label="Địa chỉ"
@@ -248,35 +221,12 @@ function CreateUser() {
                 value={user.address}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
-              <FormControl
-                fullWidth
-                sx={{
-                  mb: 2,
-                }}
-                required
-              >
+            </Grid>
+            {/* Cột phải: gender, avatar, password, confirmPassword, roles */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={{ ...inputStyle, mb: 2 }} required>
                 <InputLabel
                   sx={{
                     color: 'text.secondary',
@@ -304,46 +254,40 @@ function CreateUser() {
                     },
                   }}
                 >
-                  <MenuItem value="Male">Nam</MenuItem>
-                  <MenuItem value="Female">Nữ</MenuItem>
-                  <MenuItem value="Other">Khác</MenuItem>
+                  <MenuItem value="MALE">Nam</MenuItem>
+                  <MenuItem value="FEMALE">Nữ</MenuItem>
+                  <MenuItem value="OTHER">Khác</MenuItem>
                 </Select>
               </FormControl>
               <TextField
                 fullWidth
                 label="URL Avatar"
-                name="avata"
-                value={user.avata}
+                name="avatar"
+                value={user.avatar}
                 onChange={handleChange}
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
-              <FormControl
+              <TextField
                 fullWidth
-                sx={{
-                  mb: 2,
-                }}
+                label="Mật khẩu"
+                name="password"
+                type="password"
+                value={user.password}
+                onChange={handleChange}
                 required
-              >
+                sx={inputStyle}
+              />
+              <TextField
+                fullWidth
+                label="Xác nhận mật khẩu"
+                name="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+                required
+                sx={inputStyle}
+              />
+              <FormControl fullWidth sx={{ ...inputStyle, mb: 2 }} required>
                 <InputLabel
                   sx={{
                     color: 'text.secondary',
@@ -374,7 +318,7 @@ function CreateUser() {
                 >
                   {roleOptions.map((role) => (
                     <MenuItem key={role} value={role}>
-                      {role}
+                      {role.replace('ROLE_', '')}
                     </MenuItem>
                   ))}
                 </Select>

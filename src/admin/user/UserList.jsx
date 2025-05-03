@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -12,134 +12,69 @@ import {
   Typography,
   Button,
   TablePagination,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
-
-// Dữ liệu mẫu
-const users = [
-  {
-    id: 1,
-    name: 'User 1',
-    email: 'user1@gmail.com',
-    phoneNumber: '0901234567',
-    address: '123 Đường A, TP.HCM',
-    birthDay: '1990-01-01',
-    gender: 'Male',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['Admin'],
-  },
-  {
-    id: 2,
-    name: 'User 2',
-    email: 'user2@gmail.com',
-    phoneNumber: '0909876543',
-    address: '456 Đường B, Hà Nội',
-    birthDay: '1995-05-05',
-    gender: 'Female',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['User'],
-  },
-  {
-    id: 3,
-    name: 'User 3',
-    email: 'user3@gmail.com',
-    phoneNumber: '0903456789',
-    address: '789 Đường C, Đà Nẵng',
-    birthDay: '1988-03-15',
-    gender: 'Male',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['Moderator'],
-  },
-  {
-    id: 4,
-    name: 'User 4',
-    email: 'user4@gmail.com',
-    phoneNumber: '0902345678',
-    address: '101 Đường D, Cần Thơ',
-    birthDay: '1992-07-20',
-    gender: 'Female',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['User'],
-  },
-  {
-    id: 5,
-    name: 'User 5',
-    email: 'user5@gmail.com',
-    phoneNumber: '0908765432',
-    address: '202 Đường E, Hải Phòng',
-    birthDay: '1997-11-11',
-    gender: 'Male',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['Admin', 'User'],
-  },
-  {
-    id: 6,
-    name: 'User 6',
-    email: 'user6@gmail.com',
-    phoneNumber: '0907654321',
-    address: '303 Đường F, TP.HCM',
-    birthDay: '1985-09-09',
-    gender: 'Female',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['User'],
-  },
-  {
-    id: 7,
-    name: 'User 7',
-    email: 'user7@gmail.com',
-    phoneNumber: '0906543210',
-    address: '404 Đường G, Hà Nội',
-    birthDay: '1993-12-25',
-    gender: 'Male',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['Moderator'],
-  },
-  {
-    id: 8,
-    name: 'User 8',
-    email: 'user8@gmail.com',
-    phoneNumber: '0905432109',
-    address: '505 Đường H, Đà Nẵng',
-    birthDay: '1998-04-30',
-    gender: 'Female',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['User'],
-  },
-  {
-    id: 9,
-    name: 'User 9',
-    email: 'user9@gmail.com',
-    phoneNumber: '0904321098',
-    address: '606 Đường I, Cần Thơ',
-    birthDay: '1991-06-18',
-    gender: 'Male',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['Admin'],
-  },
-  {
-    id: 10,
-    name: 'User 10',
-    email: 'user10@gmail.com',
-    phoneNumber: '0903210987',
-    address: '707 Đường J, Hải Phòng',
-    birthDay: '2000-02-14',
-    gender: 'Female',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['User', 'Moderator'],
-  },
-];
+import axios from 'axios';
 
 function UserList() {
   const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Lấy token từ localStorage hoặc context
+  const token = localStorage.getItem('jwtToken'); // Điều chỉnh theo cách bạn lưu token
+
+  // Lấy danh sách người dùng từ backend
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get('http://localhost:6868/api/user', {
+          params: {
+            page: page,
+            size: rowsPerPage,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUsers(response.data.content || response.data); // Điều chỉnh theo cấu trúc phản hồi
+        setTotalUsers(response.data.totalElements || response.data.length);
+        console.log('Fetched users:', response.data);
+      } catch (err) {
+        setError('Lỗi khi lấy danh sách người dùng: ' + (err.response?.data || err.message));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, [page, rowsPerPage, token]);
+
+  // Xử lý xóa người dùng
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm(`Bạn có chắc muốn xóa người dùng ID ${userId}?`)) {
+      try {
+        await axios.delete(`http://localhost:6868/api/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUsers(users.filter((user) => user.id !== userId));
+        setTotalUsers(totalUsers - 1);
+      } catch (err) {
+        setError('Lỗi khi xóa người dùng: ' + (err.response?.data || err.message));
+      }
+    }
+  };
 
   const handleEditUser = (userId) => {
     navigate(`/admin/edit-user/${userId}`);
-  };
-
-  const handleDeleteUser = (userId) => {
-    console.log(`Xóa user với ID: ${userId}`);
-    // Gọi API để xóa user tại đây
   };
 
   const handleAddUser = () => {
@@ -195,155 +130,185 @@ function UserList() {
           Thêm người dùng
         </Button>
       </Box>
-      <TableContainer
-        component={Paper}
-        sx={{
-          borderRadius: '12px',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-          overflow: 'hidden',
-        }}
-      >
-        <Table sx={{ minWidth: 650 }} aria-label="user table">
-          <TableHead>
-            <TableRow
-              sx={{
-                backgroundColor: 'grey.100',
-                '& th': {
-                  fontWeight: 'bold',
-                  color: 'text.primary',
-                  py: 2,
-                  borderBottom: '2px solid',
-                  borderColor: 'grey.300',
-                },
-              }}
-            >
-              <TableCell>ID</TableCell>
-              <TableCell>Tên</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Số điện thoại</TableCell>
-              <TableCell>Hành động</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {users.length > 0 ? (
-              users
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user) => (
-                  <TableRow
-                    key={user.id}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: 'grey.50',
-                        transition: 'background-color 0.2s',
-                      },
-                      '& td': {
-                        py: 1.5,
-                        borderBottom: '1px solid',
-                        borderColor: 'grey.200',
-                      },
-                    }}
-                  >
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.phoneNumber}</TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button
-                          variant="outlined"
-                          color="secondary"
-                          size="small"
-                          onClick={() => handleEditUser(user.id)}
-                          sx={{
-                            borderRadius: '20px',
-                            textTransform: 'none',
-                            fontWeight: 'medium',
-                            px: 2,
-                            py: 0.5,
-                            borderColor: 'secondary.main',
-                            color: 'secondary.main',
-                            '&:hover': {
-                              borderColor: 'secondary.dark',
-                              bgcolor: 'grey.50',
-                            },
-                          }}
-                        >
-                          Sửa
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          onClick={() => handleDeleteUser(user.id)}
-                          sx={{
-                            borderRadius: '20px',
-                            textTransform: 'none',
-                            fontWeight: 'medium',
-                            px: 2,
-                            py: 0.5,
-                            borderColor: 'error.main',
-                            color: 'error.main',
-                            '&:hover': {
-                              borderColor: 'error.dark',
-                              bgcolor: 'grey.50',
-                            },
-                          }}
-                        >
-                          Xóa
-                        </Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  align="center"
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+              overflow: 'hidden',
+            }}
+          >
+            <Table sx={{ minWidth: 650 }} aria-label="user table">
+              <TableHead>
+                <TableRow
                   sx={{
-                    py: 2,
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
+                    backgroundColor: 'grey.100',
+                    '& th': {
+                      fontWeight: 'bold',
+                      color: 'text.primary',
+                      py: 2,
+                      borderBottom: '2px solid',
+                      borderColor: 'grey.300',
+                    },
                   }}
                 >
-                  Không có người dùng nào
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[6, 12, 24]}
-        component="div"
-        count={users.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        labelRowsPerPage="Số hàng mỗi trang:"
-        labelDisplayedRows={({ from, to, count }) => `${from}–${to} của ${count}`}
-        sx={{
-          mt: 2,
-          '& .MuiTablePagination-toolbar': {
-            backgroundColor: 'grey.50',
-            borderRadius: '8px',
-            py: 1,
-          },
-          '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
-            color: 'text.secondary',
-            fontWeight: 'medium',
-          },
-          '& .MuiTablePagination-actions button': {
-            borderRadius: '8px',
-            '&:hover': {
-              bgcolor: 'grey.200',
-            },
-          },
-        }}
-      />
+                  <TableCell>ID</TableCell>
+                  <TableCell>Tên</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Số điện thoại</TableCell>
+                  <TableCell>Giới tính</TableCell>
+                  <TableCell>Ảnh đại diện</TableCell>
+                  <TableCell>Vai trò</TableCell>
+                  <TableCell>Hành động</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.length > 0 ? (
+                  users.map((user) => (
+                    <TableRow
+                      key={user.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'grey.50',
+                          transition: 'background-color 0.2s',
+                        },
+                        '& td': {
+                          py: 1.5,
+                          borderBottom: '1px solid',
+                          borderColor: 'grey.200',
+                        },
+                      }}
+                    >
+                      <TableCell>{user.id}</TableCell>
+                      <TableCell>{user.fullName}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.phoneNumber}</TableCell>
+                      <TableCell>{user.gender || 'Chưa xác định'}</TableCell>
+                      <TableCell>
+                        {user.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt="Avatar"
+                            style={{ width: 40, height: 40, borderRadius: '50%' }}
+                          />
+                        ) : (
+                          'Chưa có'
+                        )}
+                      </TableCell>
+                      <TableCell>{user.roles?.split(',').join(', ') || 'ROLE_USER'}</TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            size="small"
+                            onClick={() => handleEditUser(user.id)}
+                            sx={{
+                              borderRadius: '20px',
+                              textTransform: 'none',
+                              fontWeight: 'medium',
+                              px: 2,
+                              py: 0.5,
+                              borderColor: 'secondary.main',
+                              color: 'secondary.main',
+                              '&:hover': {
+                                borderColor: 'secondary.dark',
+                                bgcolor: 'grey.50',
+                              },
+                            }}
+                          >
+                            Sửa
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleDeleteUser(user.id)}
+                            sx={{
+                              borderRadius: '20px',
+                              textTransform: 'none',
+                              fontWeight: 'medium',
+                              px: 2,
+                              py: 0.5,
+                              borderColor: 'error.main',
+                              color: 'error.main',
+                              '&:hover': {
+                                borderColor: 'error.dark',
+                                bgcolor: 'grey.50',
+                              },
+                            }}
+                          >
+                            Xóa
+                          </Button>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      align="center"
+                      sx={{
+                        py: 2,
+                        color: 'text.secondary',
+                        fontWeight: 'medium',
+                      }}
+                    >
+                      Không có người dùng nào
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[6, 12, 24]}
+            component="div"
+            count={totalUsers}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            labelRowsPerPage="Số hàng mỗi trang:"
+            labelDisplayedRows={({ from, to, count }) => `${from}–${to} của ${count}`}
+            sx={{
+              mt: 2,
+              '& .MuiTablePagination-toolbar': {
+                backgroundColor: 'grey.50',
+                borderRadius: '8px',
+                py: 1,
+              },
+              '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                color: 'text.secondary',
+                fontWeight: 'medium',
+              },
+              '& .MuiTablePagination-actions button': {
+                borderRadius: '8px',
+                '&:hover': {
+                  bgcolor: 'grey.200',
+                },
+              },
+            }}
+          />
+        </>
+      )}
     </Box>
   );
 }
 
 export default UserList;
+

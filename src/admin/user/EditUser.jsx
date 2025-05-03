@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -13,116 +13,188 @@ import {
   FormControl,
   Grid,
 } from '@mui/material';
+import axios from 'axios';
 
-// Dữ liệu mẫu (đồng bộ với UserList.js)
-const users = [
-  {
-    id: 1,
-    name: 'User 1',
-    email: 'user1@gmail.com',
-    phoneNumber: '0901234567',
-    address: '123 Đường A, TP.HCM',
-    birthDay: '1990-01-01',
-    gender: 'Male',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['Admin'],
-  },
-  {
-    id: 2,
-    name: 'User 2',
-    email: 'user2@gmail.com',
-    phoneNumber: '0909876543',
-    address: '456 Đường B, Hà Nội',
-    birthDay: '1995-05-05',
-    gender: 'Female',
-    avata: 'https://via.placeholder.com/40',
-    roles: ['User'],
-  },
-];
-
-// Danh sách vai trò có thể chọn
-const roleOptions = ['Admin', 'User', 'Moderator'];
+// Danh sách vai trò có thể chọn (bỏ Moderator, đồng bộ với CreateUser)
+const roleOptions = ['ROLE_ADMIN', 'ROLE_USER'];
 
 function EditUser() {
   const { userId } = useParams();
   const navigate = useNavigate();
-  const initialUser = users.find((u) => u.id === parseInt(userId)) || {};
 
   // State cho thông tin người dùng
   const [user, setUser] = useState({
-    name: initialUser.name || '',
-    email: initialUser.email || '',
-    phoneNumber: initialUser.phoneNumber || '',
-    address: initialUser.address || '',
-    birthDay: initialUser.birthDay || '',
-    gender: initialUser.gender || '',
-    avata: initialUser.avata || '',
-    roles: initialUser.roles || [],
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+    birthDay: '',
+    gender: '',
+    avatar: '',
+    roles: [],
+    password: '',
   });
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Lấy token từ localStorage
+  const token = localStorage.getItem('jwtToken');
+
+  // Định nghĩa fetchUser với useCallback
+  const fetchUser = useCallback(async () => {
+    try {
+      const response = await axios.get(`http://localhost:6868/api/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const userData = response.data;
+      setUser({
+        fullName: userData.fullName || '',
+        email: userData.email || '',
+        phoneNumber: userData.phoneNumber || '',
+        address: userData.address || '',
+        birthDay: userData.birthDay ? userData.birthDay.split('T')[0] : '', // Chuyển định dạng YYYY-MM-DD
+        gender: userData.gender || '',
+        avatar: userData.avatar || '',
+        roles: userData.roles ? userData.roles.split(',') : [], // Chuyển chuỗi thành mảng
+        password: '', // Không lấy password từ backend
+      });
+      setConfirmPassword('');
+      setError('');
+    } catch (err) {
+      setError('Lỗi khi tải thông tin người dùng: ' + (err.response?.data || err.message));
+      console.error('Lỗi:', err);
+    }
+  }, [userId, token]);
+
+  // Lấy thông tin người dùng khi tải trang
+  useEffect(() => {
+    if (token && token.includes('.')) {
+      setIsAuthenticated(true);
+      fetchUser();
+    } else {
+      setError('Vui lòng đăng nhập để chỉnh sửa người dùng.');
+      setIsAuthenticated(false);
+    }
+  }, [token, fetchUser]);
 
   // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
     setError('');
+    setSuccess('');
+  };
+
+  // Xử lý thay đổi confirmPassword
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    setError('');
+    setSuccess('');
   };
 
   // Xử lý thay đổi roles
   const handleRolesChange = (e) => {
     setUser((prev) => ({ ...prev, roles: e.target.value }));
     setError('');
+    setSuccess('');
   };
 
   // Kiểm tra dữ liệu hợp lệ
   const isValid = () => {
-    return (
-      user.name.trim() !== '' &&
-      user.email.trim() !== '' &&
-      user.phoneNumber.trim() !== '' &&
-      user.address.trim() !== '' &&
-      user.birthDay !== '' &&
-      user.gender !== '' &&
-      user.roles.length > 0
-    );
+    if (
+      user.fullName.trim() === '' ||
+      user.email.trim() === '' ||
+      user.phoneNumber.trim() === '' ||
+      user.address.trim() === '' ||
+      user.birthDay === '' ||
+      user.gender === '' ||
+      user.roles.length === 0
+    ) {
+      return false;
+    }
+    if (user.password && user.password !== confirmPassword) {
+      setError('Mật khẩu và xác nhận mật khẩu không khớp.');
+      return false;
+    }
+    return true;
   };
 
   // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValid()) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      if (!error) setError('Vui lòng điền đầy đủ thông tin.');
       return;
     }
 
     const userData = {
-      id: parseInt(userId),
-      name: user.name,
+      fullName: user.fullName,
       email: user.email,
       phoneNumber: user.phoneNumber,
       address: user.address,
       birthDay: user.birthDay,
       gender: user.gender,
-      avata: user.avata || 'https://via.placeholder.com/40',
-      roles: user.roles,
+      avatar: user.avatar || 'https://via.placeholder.com/40',
+      roles: user.roles.join(','), // Chuyển mảng thành chuỗi
+      ...(user.password && { password: user.password }), // Chỉ gửi password nếu có
     };
-    console.log('Cập nhật user:', userData);
-    navigate('/admin/user');
+
+    try {
+      const response = await axios.put(`http://localhost:6868/api/user/${userId}`, userData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Cập nhật người dùng thành công:', response.data);
+      setSuccess('Cập nhật người dùng thành công!');
+      setTimeout(() => navigate('/admin/user'), 1000); // Chuyển hướng sau 2 giây
+    } catch (err) {
+      setError('Lỗi khi cập nhật người dùng: ' + (err.response?.data || err.message));
+      console.error('Lỗi:', err);
+    }
   };
 
-  if (!initialUser.id) {
+  // Style chung cho TextField và Select
+  const inputStyle = {
+    mb: 2,
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: 'background.paper',
+      '&:hover fieldset': {
+        borderColor: 'primary.main',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'primary.main',
+        boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'text.secondary',
+      fontWeight: 'medium',
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'primary.main',
+    },
+  };
+
+  if (!isAuthenticated) {
     return (
       <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
-        <Typography
-          variant="h6"
-          sx={{
-            color: 'text.secondary',
-            fontWeight: 'medium',
-          }}
+        <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
+          {error}
+        </Alert>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/')}
+          sx={{ textTransform: 'none' }}
         >
-          Không tìm thấy người dùng
-        </Typography>
+          Đăng nhập
+        </Button>
       </Box>
     );
   }
@@ -148,50 +220,29 @@ function EditUser() {
         }}
       >
         <Box component="form" onSubmit={handleSubmit}>
-          {/* Hiển thị lỗi nếu có */}
+          {/* Hiển thị thông báo */}
           {error && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-                borderRadius: '8px',
-              }}
-            >
+            <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
               {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2, borderRadius: '8px' }}>
+              {success}
             </Alert>
           )}
 
           <Grid container spacing={2}>
-            {/* Cột trái */}
+            {/* Cột trái: fullName, email, phoneNumber, birthDay, address */}
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Tên"
-                name="name"
-                value={user.name}
+                label="Họ và tên"
+                name="fullName"
+                value={user.fullName}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -201,27 +252,7 @@ function EditUser() {
                 value={user.email}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -230,27 +261,7 @@ function EditUser() {
                 value={user.phoneNumber}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -261,31 +272,8 @@ function EditUser() {
                 onChange={handleChange}
                 InputLabelProps={{ shrink: true }}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
-            </Grid>
-            {/* Cột phải */}
-            <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
                 label="Địa chỉ"
@@ -293,35 +281,12 @@ function EditUser() {
                 value={user.address}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
-              <FormControl
-                fullWidth
-                sx={{
-                  mb: 2,
-                }}
-                required
-              >
+            </Grid>
+            {/* Cột phải: gender, avatar, password, confirmPassword, roles */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={{ ...inputStyle, mb: 2 }} required>
                 <InputLabel
                   sx={{
                     color: 'text.secondary',
@@ -349,46 +314,38 @@ function EditUser() {
                     },
                   }}
                 >
-                  <MenuItem value="Male">Nam</MenuItem>
-                  <MenuItem value="Female">Nữ</MenuItem>
-                  <MenuItem value="Other">Khác</MenuItem>
+                  <MenuItem value="MALE">Nam</MenuItem>
+                  <MenuItem value="FEMALE">Nữ</MenuItem>
+                  <MenuItem value="OTHER">Khác</MenuItem>
                 </Select>
               </FormControl>
               <TextField
                 fullWidth
                 label="URL Avatar"
-                name="avata"
-                value={user.avata}
+                name="avatar"
+                value={user.avatar}
                 onChange={handleChange}
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
-              <FormControl
+              <TextField
                 fullWidth
-                sx={{
-                  mb: 2,
-                }}
-                required
-              >
+                label="Mật khẩu mới"
+                name="password"
+                type="password"
+                value={user.password}
+                onChange={handleChange}
+                sx={inputStyle}
+              />
+              <TextField
+                fullWidth
+                label="Xác nhận mật khẩu"
+                name="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+                sx={inputStyle}
+              />
+              <FormControl fullWidth sx={{ ...inputStyle, mb: 2 }} required>
                 <InputLabel
                   sx={{
                     color: 'text.secondary',
@@ -419,7 +376,7 @@ function EditUser() {
                 >
                   {roleOptions.map((role) => (
                     <MenuItem key={role} value={role}>
-                      {role}
+                      {role.replace('ROLE_', '')}
                     </MenuItem>
                   ))}
                 </Select>
