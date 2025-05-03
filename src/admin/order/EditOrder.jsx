@@ -19,37 +19,7 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-
-// Dữ liệu mẫu (có thể thay bằng API thực tế)
-const orderDetailsData = {
-  1: {
-    id: 1,
-    date: '2025-03-31',
-    total: 150000,
-    status: 'Completed',
-    user: { name: 'User1', email: 'user1@gmail.com' },
-    items: [
-      { productId: 1, name: 'Áo thun', quantity: 2, price: 50000 },
-      { productId: 2, name: 'Quần jeans', quantity: 1, price: 100000 },
-    ],
-  },
-  2: {
-    id: 2,
-    date: '2025-03-31',
-    total: 200000,
-    status: 'Pending',
-    user: { name: 'User2', email: 'user2@gmail.com' },
-    items: [{ productId: 2, name: 'Quần jeans', quantity: 2, price: 100000 }],
-  },
-  3: {
-    id: 3,
-    date: '2025-03-30',
-    total: 300000,
-    status: 'Shipped',
-    user: { name: 'User3', email: 'user3@gmail.com' },
-    items: [{ productId: 3, name: 'Áo khoác', quantity: 2, price: 150000 }],
-  },
-};
+import axios from 'axios';
 
 function EditOrder() {
   const { orderId } = useParams();
@@ -59,26 +29,58 @@ function EditOrder() {
   const [loading, setLoading] = useState(true);
 
   // Danh sách trạng thái
-  const statuses = ['Pending', 'Shipped', 'Completed', 'Cancelled'];
+  const statuses = ['PENDING', 'SHIPPED', 'COMPLETED', 'CANCELLED'];
 
-  // Fetch dữ liệu đơn hàng
+  // Ánh xạ trạng thái tiếng Việt
+  const statusMap = {
+    PENDING: 'Đang chờ',
+    SHIPPED: 'Đã giao',
+    COMPLETED: 'Hoàn thành',
+    CANCELLED: 'Đã hủy',
+  };
+
+  // Hàm định dạng ngày
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Không xác định';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'Không xác định' : date.toLocaleDateString('vi-VN');
+  };
+
+  // Lấy chi tiết đơn hàng từ API
   useEffect(() => {
-    // Mô phỏng gọi API
-    const data = orderDetailsData[orderId];
-    if (data) {
-      setOrder({
-        id: data.id,
-        date: data.date,
-        total: data.total,
-        status: data.status,
-        user: data.user,
-        items: data.items,
-      });
-      setLoading(false);
-    } else {
-      setError('Không tìm thấy đơn hàng');
-      setLoading(false);
-    }
+    const fetchOrder = async () => {
+      try {
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+          setError('Vui lòng đăng nhập để chỉnh sửa đơn hàng');
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:6868/api/orders/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log('Fetched order:', response.data); // Debug dữ liệu API
+        setOrder(response.data);
+        setLoading(false);
+        setError('');
+      } catch (err) {
+        console.error('Error fetching order:', err);
+        if (err.response?.status === 404) {
+          setError('Không tìm thấy đơn hàng');
+        } else if (err.response?.status === 401) {
+          setError('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        } else {
+          setError('Không thể tải đơn hàng. Vui lòng thử lại.');
+        }
+        setLoading(false);
+      }
+    };
+
+    fetchOrder();
   }, [orderId]);
 
   // Xử lý thay đổi trạng thái
@@ -94,23 +96,44 @@ function EditOrder() {
   };
 
   // Xử lý submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid()) {
       setError('Vui lòng chọn trạng thái');
       return;
     }
 
-    const updatedOrder = {
-      id: order.id,
-      date: order.date,
-      total: order.total,
-      status: order.status,
-      user: order.user,
-      items: order.items,
-    };
-    console.log('Cập nhật đơn hàng:', updatedOrder);
-    navigate('/admin/order');
+    try {
+      const token = localStorage.getItem('jwtToken');
+      if (!token) {
+        setError('Vui lòng đăng nhập để chỉnh sửa đơn hàng');
+        return;
+      }
+
+      // Chỉ gửi trường status
+      const updatedData = {
+        status: order.status,
+      };
+
+      await axios.put(`http://localhost:6868/api/orders/${orderId}`, updatedData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log('Updated order status:', updatedData); // Debug dữ liệu gửi đi
+      navigate('/admin/order');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      if (err.response?.status === 401) {
+        setError('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      } else if (err.response?.status === 404) {
+        setError('Không tìm thấy đơn hàng');
+      } else {
+        setError('Không thể cập nhật đơn hàng. Vui lòng thử lại.');
+      }
+    }
   };
 
   if (loading) {
@@ -139,7 +162,7 @@ function EditOrder() {
             fontWeight: 'medium',
           }}
         >
-          Không tìm thấy đơn hàng
+          {error || 'Không tìm thấy đơn hàng'}
         </Typography>
       </Box>
     );
@@ -194,8 +217,8 @@ function EditOrder() {
               <TextField
                 fullWidth
                 label="Ngày đặt"
-                name="date"
-                value={order.date}
+                name="orderDate"
+                value={formatDate(order.orderDate)}
                 disabled
                 sx={{
                   mb: 2,
@@ -278,7 +301,7 @@ function EditOrder() {
                 >
                   {statuses.map((status) => (
                     <MenuItem key={status} value={status}>
-                      {status}
+                      {statusMap[status] || status}
                     </MenuItem>
                   ))}
                 </Select>
@@ -289,8 +312,8 @@ function EditOrder() {
               <TextField
                 fullWidth
                 label="Khách hàng"
-                name="user.name"
-                value={order.user.name}
+                name="user.fullName"
+                value={order.user.fullName || 'Không xác định'}
                 disabled
                 sx={{
                   mb: 2,
@@ -384,27 +407,45 @@ function EditOrder() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {order.items.map((item) => (
-                  <TableRow
-                    key={item.productId}
-                    sx={{
-                      '&:hover': {
-                        backgroundColor: 'grey.50',
-                        transition: 'background-color 0.2s',
-                      },
-                      '& td': {
-                        py: 1.5,
-                        borderBottom: '1px solid',
-                        borderColor: 'grey.200',
-                      },
-                    }}
-                  >
-                    <TableCell sx={{ fontWeight: 'medium' }}>{item.name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>{item.price.toLocaleString()}</TableCell>
-                    <TableCell>{(item.quantity * item.price).toLocaleString()}</TableCell>
+                {order.orderDetails && order.orderDetails.length > 0 ? (
+                  order.orderDetails.map((item) => (
+                    <TableRow
+                      key={item.id}
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: 'grey.50',
+                          transition: 'background-color 0.2s',
+                        },
+                        '& td': {
+                          py: 1.5,
+                          borderBottom: '1px solid',
+                          borderColor: 'grey.200',
+                        },
+                      }}
+                    >
+                      <TableCell sx={{ fontWeight: 'medium' }}>
+                        {item.product?.name || 'Không xác định'}
+                      </TableCell>
+                      <TableCell>{item.quantity}</TableCell>
+                      <TableCell>{item.price.toLocaleString()}</TableCell>
+                      <TableCell>{(item.quantity * item.price).toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      align="center"
+                      sx={{
+                        py: 2,
+                        color: 'text.secondary',
+                        fontWeight: 'medium',
+                      }}
+                    >
+                      Không có sản phẩm nào
+                    </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
