@@ -29,10 +29,10 @@ function OrderDetails() {
 
   // Ánh xạ trạng thái
   const statusMap = {
-    PENDING: 'Đang chờ',
-    COMPLETED: 'Hoàn thành',
-    SHIPPED: 'Đã giao',
-    CANCELLED: 'Đã hủy',
+    Pending: 'Đang chờ',
+    Shipped: 'Đã giao',
+    Completed: 'Hoàn thành',
+    Cancelled: 'Đã hủy',
   };
 
   // Lấy chi tiết đơn hàng từ API

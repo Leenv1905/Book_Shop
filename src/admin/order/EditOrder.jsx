@@ -29,14 +29,14 @@ function EditOrder() {
   const [loading, setLoading] = useState(true);
 
   // Danh sách trạng thái
-  const statuses = ['PENDING', 'SHIPPED', 'COMPLETED', 'CANCELLED'];
+  const statuses = ['Pending', 'Shipped', 'Completed', 'Cancelled'];
 
   // Ánh xạ trạng thái tiếng Việt
   const statusMap = {
-    PENDING: 'Đang chờ',
-    SHIPPED: 'Đã giao',
-    COMPLETED: 'Hoàn thành',
-    CANCELLED: 'Đã hủy',
+    Pending: 'Đang chờ',
+    Shipped: 'Đã giao',
+    Completed: 'Hoàn thành',
+    Cancelled: 'Đã hủy',
   };
 
   // Hàm định dạng ngày
