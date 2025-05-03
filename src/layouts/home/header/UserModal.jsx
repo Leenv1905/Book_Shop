@@ -30,7 +30,7 @@ const UserModal = () => {
       setRememberMe(true);
       setCredentials({
         email: localStorage.getItem("email") || "",
-        password: localStorage.getItem("password") || "",
+        password: "", // Không lấy password từ localStorage
       });
     } else {
       setCredentials({ email: "", password: "" });
@@ -51,21 +51,24 @@ const UserModal = () => {
         email: credentials.email,
         password: credentials.password,
       });
+      console.log("Login response:", response.data); // Debug
 
-      if (response.data.token) {
-        handleLoginSuccess(response.data.token, handleRedirect);
+      const { token } = response.data;
+      if (token) {
+        handleLoginSuccess(token, handleRedirect);
 
         if (rememberMe) {
           localStorage.setItem("email", credentials.email);
-          localStorage.setItem("password", credentials.password);
           localStorage.setItem("rememberMe", "true");
         } else {
           localStorage.removeItem("email");
-          localStorage.removeItem("password");
           localStorage.removeItem("rememberMe");
         }
+      } else {
+        setError("Không nhận được token từ server!");
       }
     } catch (error) {
+      console.error("Login error:", error);
       setError("Email hoặc mật khẩu không đúng!");
     }
   };

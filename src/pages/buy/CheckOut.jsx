@@ -1,5 +1,3 @@
-// import { useCart } from '../../components/action/CartContext'; // Import useCart từ CartContext
-
 import React from "react";
 import {
   Box,
@@ -18,23 +16,59 @@ import BreadcrumbsComponent from "../../components/display/free/BreadcrumbsCompo
 import InstagramGallery from "../../components/display/GroupItems/InstagramGallery";
 import { useNavigate } from "react-router-dom";
 import BuyDone from "./BuyDone";
-import { useCart } from '../../components/action/CartContext';
+import { useCart } from "../../components/action/CartContext";
+import axios from "axios";
 
 const CheckOut = () => {
   const navigate = useNavigate();
   const { cartItems, clearCart } = useCart();
+  const [open, setOpen] = React.useState(false);
+  const [error, setError] = React.useState(null);
 
   const handleToCart = () => {
     navigate("/cart");
   };
 
-  const [open, setOpen] = React.useState(false);
+  const handleOpen = async () => {
+    try {
+      // Lấy token từ localStorage với key đúng
+      const token = localStorage.getItem("jwtToken");
+      console.log("Token retrieved:", token); // Debug
+      if (!token) {
+        setError("Please log in to place an order");
+        return;
+      }
 
-  const handleOpen = () => {
-    setOpen(true);
-    clearCart();
+      // Chuẩn bị dữ liệu cho API
+      const orderData = {
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.salePrice || item.price,
+        })),
+      };
+
+      // Gửi yêu cầu với token trong header
+      const response = await axios.post("http://localhost:6868/api/orders", orderData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setOpen(true);
+        clearCart();
+      }
+    } catch (err) {
+      setError(err.response?.data || "Failed to place order. Please try again.");
+      console.error("Checkout error:", err);
+    }
   };
-  const handleClose = () => setOpen(false);
+
+  const handleClose = () => {
+    setOpen(false);
+    navigate("/");
+  };
 
   // Tính tổng tiền
   const calculateSubtotal = () => {
@@ -43,8 +77,6 @@ const CheckOut = () => {
       return total + price * item.quantity;
     }, 0);
   };
-  // return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
-  // .toFixed(2) NẾU DÙNG TIỀN USD
 
   return (
     <>
@@ -61,6 +93,12 @@ const CheckOut = () => {
         <Typography variant="h3" gutterBottom textAlign="center">
           Checkout
         </Typography>
+
+        {error && (
+          <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
+            {error}
+          </Typography>
+        )}
 
         {/* Bảng sản phẩm */}
         <TableContainer component={Paper} sx={{ mb: 4 }}>
@@ -140,7 +178,7 @@ const CheckOut = () => {
                 </TableCell>
                 <TableCell align="right">
                   <Typography variant="h6" color="error.main" sx={{ mr: 5 }}>
-                    {calculateSubtotal()} VNĐ
+                    {calculateSubtotal().toLocaleString()} VNĐ
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -152,7 +190,7 @@ const CheckOut = () => {
                 </TableCell>
                 <TableCell align="right">
                   <Typography variant="h6" color="error.main" sx={{ mr: 5 }}>
-                    {calculateSubtotal()} VNĐ
+                    {calculateSubtotal().toLocaleString()} VNĐ
                   </Typography>
                 </TableCell>
               </TableRow>
