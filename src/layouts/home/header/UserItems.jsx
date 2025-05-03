@@ -8,12 +8,19 @@ import CartDropdown from "./CartDropdown";
 import { useAuth } from "../../protected/AuthContext";
 
 const UserItems = () => {
-  const { isAuthenticated, setShowLoginModal, handleLogout } = useAuth();
+  const { isAuthenticated, setShowLoginModal, handleLogout, showError } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
+
+  const handleLogoutClick = () => {
+    handleLogout();
+    handleMenuClose();
+    showError("Đăng xuất thành công!", "success");
+    navigate("/");
+  };
 
   return (
     <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 2 }}>
@@ -30,7 +37,7 @@ const UserItems = () => {
         ) : (
           <>
             <MenuItem onClick={() => { navigate("/customerprofile"); handleMenuClose(); }}>My Account</MenuItem>
-            <MenuItem onClick={() => { handleLogout(); handleMenuClose(); }}>Logout</MenuItem>
+            <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
           </>
         )}
       </Menu>

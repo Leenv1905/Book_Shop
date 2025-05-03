@@ -1,5 +1,5 @@
 // Context được sử dụng để quản lý trạng thái xác thực (authentication state)
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useCallback } from "react";
 import { getRolesFromToken, getEmailFromToken, isTokenExpired } from "./jwtUtils";
 
 export const AuthContext = createContext();
@@ -18,21 +18,14 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem("jwtToken");
     return token ? getEmailFromToken(token) : null;
   });
-  // Trạng thái cho Snackbar
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
-    severity: "error", // Có thể là "error", "warning", "info", "success"
+    severity: "error",
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
-    if (token && isTokenExpired(token)) {
-      handleLogout();
-    }
-  }, []);
-
-  const handleLoginSuccess = (token, onRedirect) => {
+  const handleLoginSuccess = useCallback((token, onRedirect) => {
+    console.log("handleLoginSuccess called with token:", token);
     localStorage.setItem("jwtToken", token);
     localStorage.setItem("isAuthenticated", "true");
     setIsAuthenticated(true);
@@ -46,9 +39,10 @@ export const AuthProvider = ({ children }) => {
     if (onRedirect) {
       onRedirect(role);
     }
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
+    console.log("handleLogout called");
     setIsAuthenticated(false);
     setShowLoginModal(false);
     setUserRole(null);
@@ -58,17 +52,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("username");
     localStorage.removeItem("password");
     localStorage.removeItem("rememberMe");
-  };
+  }, []);
 
-  // Hàm để hiển thị thông báo lỗi
-  const showError = (message) => {
-    setSnackbar({ open: true, message, severity: "error" });
-  };
+  const showError = useCallback((message, severity = "error") => {
+    console.log("showError called with message:", message);
+    setSnackbar({ open: true, message, severity });
+  }, []);
 
-  // Hàm để đóng Snackbar
-  const closeSnackbar = () => {
+  const closeSnackbar = useCallback(() => {
     setSnackbar({ ...snackbar, open: false });
-  };
+  }, [snackbar]);
 
   return (
     <AuthContext.Provider
@@ -91,5 +84,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook để sử dụng AuthContext
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => React.useContext(AuthContext);
