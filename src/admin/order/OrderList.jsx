@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
@@ -13,26 +13,54 @@ import {
   Button,
   TablePagination,
 } from '@mui/material';
-
-// Dữ liệu mẫu (thay bằng API thực tế)
-const orders = [
-  { id: 1, userId: 1, date: '2025-03-25', total: 150000, status: 'Completed' },
-  { id: 2, userId: 1, date: '2025-03-26', total: 200000, status: 'Pending' },
-  { id: 3, userId: 2, date: '2025-03-27', total: 300000, status: 'Shipped' },
-  { id: 4, userId: 2, date: '2025-03-28', total: 120000, status: 'Completed' },
-  { id: 5, userId: 3, date: '2025-03-29', total: 250000, status: 'Pending' },
-  { id: 6, userId: 1, date: '2025-03-30', total: 180000, status: 'Shipped' },
-  { id: 7, userId: 3, date: '2025-03-31', total: 400000, status: 'Cancelled' },
-  { id: 8, userId: 2, date: '2025-04-01', total: 350000, status: 'Completed' },
-  { id: 9, userId: 1, date: '2025-04-02', total: 220000, status: 'Pending' },
-  { id: 10, userId: 3, date: '2025-04-03', total: 500000, status: 'Shipped' },
-];
+import axios from 'axios';
 
 function OrderList() {
   const { userId } = useParams(); // Lấy userId từ URL nếu có
   const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(6);
+  const [error, setError] = useState(null);
+
+  // Hàm lấy danh sách đơn hàng từ API, bọc trong useCallback
+  const fetchOrders = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('jwtToken');
+      if (!token) {
+        setError('Vui lòng đăng nhập để xem đơn hàng');
+        return;
+      }
+
+      const url = userId
+        ? `http://localhost:6868/api/orders/user/${userId}`
+        : 'http://localhost:6868/api/orders';
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Đảm bảo dữ liệu trả về là mảng
+      const fetchedOrders = Array.isArray(response.data) ? response.data : [];
+      console.log('Fetched orders:', fetchedOrders); // Debug dữ liệu API
+      setOrders(fetchedOrders);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      if (err.response?.status === 401) {
+        setError('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      } else {
+        setError('Không thể tải danh sách đơn hàng. Vui lòng thử lại.');
+      }
+    }
+  }, [userId]);
+
+  // Gọi API khi component mount hoặc khi userId thay đổi
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const handleViewDetails = (orderId) => {
     navigate(`/admin/order/${orderId}`);
@@ -42,10 +70,8 @@ function OrderList() {
     navigate(`/admin/edit-order/${orderId}`);
   };
 
-  // Lọc đơn hàng theo userId nếu có, nếu không thì hiển thị tất cả
-  const filteredOrders = userId
-    ? orders.filter((order) => order.userId === parseInt(userId))
-    : orders;
+  // Lọc đơn hàng theo userId nếu cần (đã xử lý trong API)
+  const filteredOrders = orders;
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -54,6 +80,21 @@ function OrderList() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  // Hàm định dạng ngày
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Không xác định';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'Không xác định' : date.toLocaleDateString('vi-VN');
+  };
+
+  // Ánh xạ trạng thái
+  const statusMap = {
+    PENDING: 'Đang chờ',
+    COMPLETED: 'Hoàn thành',
+    SHIPPED: 'Đã giao',
+    CANCELLED: 'Đã hủy',
   };
 
   return (
@@ -69,6 +110,13 @@ function OrderList() {
       >
         {userId ? `ĐƠN HÀNG CỦA NGƯỜI DÙNG #${userId}` : 'DANH SÁCH ĐƠN HÀNG'}
       </Typography>
+
+      {error && (
+        <Typography color="error" sx={{ mb: 2, textAlign: 'center' }}>
+          {error}
+        </Typography>
+      )}
+
       <TableContainer
         component={Paper}
         sx={{
@@ -118,9 +166,9 @@ function OrderList() {
                     }}
                   >
                     <TableCell>{order.id}</TableCell>
-                    <TableCell>{order.date}</TableCell>
+                    <TableCell>{formatDate(order.orderDate)}</TableCell>
                     <TableCell>{order.total.toLocaleString()}</TableCell>
-                    <TableCell>{order.status}</TableCell>
+                    <TableCell>{statusMap[order.status] || order.status}</TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <Button

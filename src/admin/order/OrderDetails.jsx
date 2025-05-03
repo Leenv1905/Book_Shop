@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -12,44 +12,64 @@ import {
   TableRow,
   Button,
 } from '@mui/material';
-
-// Dữ liệu mẫu (có thể thay bằng API thực tế)
-const orderDetailsData = {
-  1: {
-    id: 1,
-    date: '2025-03-31',
-    total: 150000,
-    status: 'Completed',
-    user: { name: 'User1', email: 'user1@gmail.com' },
-    items: [
-      { productId: 1, name: 'Áo thun', quantity: 2, price: 50000 },
-      { productId: 2, name: 'Quần jeans', quantity: 1, price: 100000 },
-    ],
-  },
-  2: {
-    id: 2,
-    date: '2025-03-31',
-    total: 200000,
-    status: 'Pending',
-    user: { name: 'User2', email: 'user2@gmail.com' },
-    items: [{ productId: 2, name: 'Quần jeans', quantity: 2, price: 100000 }],
-  },
-  3: {
-    id: 3,
-    date: '2025-03-30',
-    total: 300000,
-    status: 'Shipped',
-    user: { name: 'User3', email: 'user3@gmail.com' },
-    items: [{ productId: 3, name: 'Áo khoác', quantity: 2, price: 150000 }],
-  },
-};
+import axios from 'axios';
 
 function OrderDetails() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const order = orderDetailsData[orderId] || {};
+  const [order, setOrder] = useState(null);
+  const [error, setError] = useState(null);
 
-  if (!order.id) {
+  // Hàm định dạng ngày
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Không xác định';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'Không xác định' : date.toLocaleDateString('vi-VN');
+  };
+
+  // Ánh xạ trạng thái
+  const statusMap = {
+    PENDING: 'Đang chờ',
+    COMPLETED: 'Hoàn thành',
+    SHIPPED: 'Đã giao',
+    CANCELLED: 'Đã hủy',
+  };
+
+  // Lấy chi tiết đơn hàng từ API
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      try {
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+          setError('Vui lòng đăng nhập để xem chi tiết đơn hàng');
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:6868/api/orders/${orderId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log('Fetched order details:', response.data); // Debug dữ liệu API
+        setOrder(response.data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching order details:', err);
+        if (err.response?.status === 404) {
+          setError('Không tìm thấy đơn hàng');
+        } else if (err.response?.status === 401) {
+          setError('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        } else {
+          setError('Không thể tải chi tiết đơn hàng. Vui lòng thử lại.');
+        }
+      }
+    };
+
+    fetchOrderDetails();
+  }, [orderId]);
+
+  if (error || !order) {
     return (
       <Box sx={{ mt: 8, px: { xs: 2, sm: 4 }, maxWidth: '1400px', mx: 'auto' }}>
         <Typography
@@ -59,7 +79,7 @@ function OrderDetails() {
             fontWeight: 'medium',
           }}
         >
-          Không tìm thấy đơn hàng
+          {error || 'Không tìm thấy đơn hàng'}
         </Typography>
       </Box>
     );
@@ -102,7 +122,7 @@ function OrderDetails() {
             mb: 1,
           }}
         >
-          Ngày đặt: {order.date}
+          Ngày đặt: {formatDate(order.orderDate)}
         </Typography>
         <Typography
           sx={{
@@ -111,7 +131,7 @@ function OrderDetails() {
             mb: 1,
           }}
         >
-          Trạng thái: {order.status}
+          Trạng thái: {statusMap[order.status] || order.status}
         </Typography>
         <Typography
           sx={{
@@ -129,7 +149,7 @@ function OrderDetails() {
             mb: 2,
           }}
         >
-          Khách hàng: {order.user.name} ({order.user.email})
+          Khách hàng: ID: {order.user.id}, Tên: {order.user.fullName || 'Không xác định'}, Email: {order.user.email}
         </Typography>
 
         <Typography
@@ -171,27 +191,45 @@ function OrderDetails() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {order.items.map((item) => (
-                <TableRow
-                  key={item.productId}
-                  sx={{
-                    '&:hover': {
-                      backgroundColor: 'grey.50',
-                      transition: 'background-color 0.2s',
-                    },
-                    '& td': {
-                      py: 1.5,
-                      borderBottom: '1px solid',
-                      borderColor: 'grey.200',
-                    },
-                  }}
-                >
-                  <TableCell sx={{ fontWeight: 'medium' }}>{item.name}</TableCell>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>{item.price.toLocaleString()}</TableCell>
-                  <TableCell>{(item.quantity * item.price).toLocaleString()}</TableCell>
+              {order.orderDetails && order.orderDetails.length > 0 ? (
+                order.orderDetails.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'grey.50',
+                        transition: 'background-color 0.2s',
+                      },
+                      '& td': {
+                        py: 1.5,
+                        borderBottom: '1px solid',
+                        borderColor: 'grey.200',
+                      },
+                    }}
+                  >
+                    <TableCell sx={{ fontWeight: 'medium' }}>
+                      {item.product?.name || 'Không xác định'}
+                    </TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{item.price.toLocaleString()}</TableCell>
+                    <TableCell>{(item.quantity * item.price).toLocaleString()}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    align="center"
+                    sx={{
+                      py: 2,
+                      color: 'text.secondary',
+                      fontWeight: 'medium',
+                    }}
+                  >
+                    Không có sản phẩm nào
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>
