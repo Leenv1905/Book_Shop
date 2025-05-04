@@ -257,7 +257,13 @@ function LayoutAdmin() {
 
   const drawer = (
     <div style={{ backgroundColor: '#263238', height: isMobile ? 'auto' : '100vh', overflow: 'auto' }}>
-      <Toolbar>
+      <Toolbar
+        sx={{
+          display: "flex", // Kích hoạt Flexbox
+          justifyContent: "center", // Căn giữa theo chiều ngang
+          alignItems: "center", // Căn giữa theo chiều dọc
+        }}
+      >
         <IconButton
           color="inherit"
           aria-label={drawerOpen ? 'close drawer' : 'open drawer'}
@@ -270,7 +276,7 @@ function LayoutAdmin() {
           }}
         >
           {drawerOpen ? (
-            <img src="/demo/images/main-logo.png" alt="SHOP" style={{ width: '120px', height: 'auto' }} />
+            <img src="/demo/images/main-logo1.png" alt="SHOP" style={{ width: '120px', height: 'auto' }} />
           ) : (
             <MenuIcon />
           )}
