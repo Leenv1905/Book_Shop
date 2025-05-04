@@ -24,14 +24,14 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 // Dữ liệu mẫu
 const users = [
-  { id: 1, name: 'Nguyễn Văn A' },
-  { id: 2, name: 'Trần Thị B' },
+  { id: 1, name: 'Lee Jung Joe' },
+  { id: 2, name: 'Park Ji Sung' },
 ];
 
 const products = [
-  { id: 1, name: 'Áo thun' },
-  { id: 2, name: 'Quần jeans' },
-  { id: 3, name: 'Giày thể thao' },
+  { id: 1, name: 'Life Skills for Tweens' },
+  { id: 2, name: '101 Things Every Kid Needs To Know' },
+  { id: 3, name: 'Life Skills for Teens' },
 ];
 
 const orders = [

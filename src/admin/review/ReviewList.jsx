@@ -27,14 +27,14 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 // Dữ liệu mẫu
 const users = [
-  { id: 1, name: 'Nguyễn Văn A' },
-  { id: 2, name: 'Trần Thị B' },
+  { id: 1, name: 'Lee Jung Joe' },
+  { id: 2, name: 'Park Ji Sung' },
 ];
 
 const products = [
-  { id: 1, name: 'Áo thun' },
-  { id: 2, name: 'Quần jeans' },
-  { id: 3, name: 'Giày thể thao' },
+  { id: 1, name: 'Life Skills for Tweens' },
+  { id: 2, name: '101 Things Every Kid Needs To Know' },
+  { id: 3, name: 'Life Skills for Teens' },
 ];
 
 const orders = [
@@ -56,7 +56,7 @@ const orders = [
 const reviews = [
   {
     id: 1,
-    comment: 'Sản phẩm rất tốt!',
+    comment: 'Very good book!',
     dateReview: '2025-03-15',
     rating: 4,
     orderId: 1,
@@ -64,7 +64,7 @@ const reviews = [
   },
   {
     id: 2,
-    comment: 'Chất lượng ổn, giao hàng nhanh.',
+    comment: 'Super fast delivery, good quality.',
     dateReview: '2025-03-20',
     rating: 5,
     orderId: 2,
@@ -72,7 +72,7 @@ const reviews = [
   },
   {
     id: 3,
-    comment: 'Rất hài lòng với sản phẩm!',
+    comment: 'Everything is good, wish you sell a lot!',
     dateReview: '2025-03-21',
     rating: 5,
     orderId: 1,
@@ -88,7 +88,7 @@ const reviews = [
   },
   {
     id: 5,
-    comment: 'Tuyệt vời, sẽ mua lại!',
+    comment: 'I will support many more times!',
     dateReview: '2025-03-23',
     rating: 5,
     orderId: 1,
@@ -96,7 +96,7 @@ const reviews = [
   },
   {
     id: 6,
-    comment: 'Không như kỳ vọng, chất lượng trung bình.',
+    comment: 'You should also try, I have no regrets.',
     dateReview: '2025-03-24',
     rating: 2,
     orderId: 2,
@@ -104,7 +104,7 @@ const reviews = [
   },
   {
     id: 7,
-    comment: 'Hàng chất lượng, đáng tiền.',
+    comment: 'I bought the most satisfactory book.',
     dateReview: '2025-03-25',
     rating: 4,
     orderId: 1,
@@ -112,7 +112,7 @@ const reviews = [
   },
   {
     id: 8,
-    comment: 'Giao hàng hơi chậm nhưng sản phẩm tốt.',
+    comment: 'This shops service is great',
     dateReview: '2025-03-26',
     rating: 4,
     orderId: 2,
@@ -120,7 +120,7 @@ const reviews = [
   },
   {
     id: 9,
-    comment: 'Sản phẩm đẹp, đúng mô tả.',
+    comment: 'Super fast delivery, good quality.',
     dateReview: '2025-03-27',
     rating: 5,
     orderId: 1,
@@ -128,7 +128,7 @@ const reviews = [
   },
   {
     id: 10,
-    comment: 'Chấp nhận được, giá hơi cao.',
+    comment: 'Everything is good, wish you sell a lot.',
     dateReview: '2025-03-28',
     rating: 3,
     orderId: 2,

@@ -9,6 +9,7 @@ import {
   Alert,
   Grid,
 } from '@mui/material';
+import axios from 'axios';
 
 function AddSupplier() {
   const navigate = useNavigate();
@@ -19,38 +20,95 @@ function AddSupplier() {
     email: '',
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setSupplier((prev) => ({ ...prev, [name]: value }));
     setError('');
+    setSuccess('');
   };
 
   const isValid = () => {
-    return (
-      supplier.name.trim() !== '' &&
-      supplier.address.trim() !== '' &&
-      supplier.phoneNumber.trim() !== '' &&
-      supplier.email.trim() !== ''
-    );
+    // Kiểm tra tất cả trường không rỗng
+    if (
+      supplier.name.trim() === '' ||
+      supplier.address.trim() === '' ||
+      supplier.phoneNumber.trim() === '' ||
+      supplier.email.trim() === ''
+    ) {
+      setError('Vui lòng điền đầy đủ thông tin.');
+      return false;
+    }
+
+    // Kiểm tra định dạng email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(supplier.email)) {
+      setError('Email không hợp lệ.');
+      return false;
+    }
+
+    // Kiểm tra định dạng phoneNumber (chỉ 10 chữ số)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(supplier.phoneNumber)) {
+      setError('Số điện thoại không hợp lệ. Phải có đúng 10 chữ số (ví dụ: 0901234567).');
+      return false;
+    }
+    return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValid()) {
-      setError('Vui lòng điền đầy đủ thông tin');
       return;
     }
 
+    // Thêm mã quốc gia +84 để tương thích với backend
     const supplierData = {
       name: supplier.name,
       address: supplier.address,
-      phoneNumber: supplier.phoneNumber,
+      phoneNumber: `+84${supplier.phoneNumber}`,
       email: supplier.email,
     };
-    console.log('Thêm supplier:', supplierData);
-    navigate('/admin/supplier');
+
+    try {
+      const response = await axios.post('http://localhost:6868/api/supplier', supplierData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('Thêm supplier response:', response.data); // Debug
+      setSuccess('Thêm nhà cung cấp thành công!');
+      setError('');
+      setTimeout(() => navigate('/admin/supplier'), 1000); // Chuyển hướng sau 2 giây
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.response?.data || err.message;
+      setError('Lỗi khi thêm nhà cung cấp: ' + errorMessage);
+      console.error('Lỗi:', err);
+    }
+  };
+
+  const inputStyle = {
+    mb: 2,
+    '& .MuiOutlinedInput-root': {
+      borderRadius: '12px',
+      backgroundColor: 'background.paper',
+      '&:hover fieldset': {
+        borderColor: 'primary.main',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'primary.main',
+        boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'text.secondary',
+      fontWeight: 'medium',
+    },
+    '& .MuiInputLabel-root.Mui-focused': {
+      color: 'primary.main',
+    },
   };
 
   return (
@@ -75,14 +133,13 @@ function AddSupplier() {
       >
         <Box component="form" onSubmit={handleSubmit}>
           {error && (
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-                borderRadius: '8px',
-              }}
-            >
+            <Alert severity="error" sx={{ mb: 2, borderRadius: '8px' }}>
               {error}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity="success" sx={{ mb: 2, borderRadius: '8px' }}>
+              {success}
             </Alert>
           )}
           <Grid container spacing={2}>
@@ -94,27 +151,7 @@ function AddSupplier() {
                 value={supplier.name}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -124,27 +161,7 @@ function AddSupplier() {
                 value={supplier.email}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -155,27 +172,7 @@ function AddSupplier() {
                 value={supplier.address}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                sx={inputStyle}
               />
               <TextField
                 fullWidth
@@ -184,27 +181,8 @@ function AddSupplier() {
                 value={supplier.phoneNumber}
                 onChange={handleChange}
                 required
-                sx={{
-                  mb: 2,
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '12px',
-                    backgroundColor: 'background.paper',
-                    '&:hover fieldset': {
-                      borderColor: 'primary.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'primary.main',
-                      boxShadow: '0 0 8px rgba(25, 118, 210, 0.3)',
-                    },
-                  },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.secondary',
-                    fontWeight: 'medium',
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'primary.main',
-                  },
-                }}
+                placeholder="+84901234567"
+                sx={inputStyle}
               />
             </Grid>
           </Grid>
