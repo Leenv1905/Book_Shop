@@ -108,7 +108,7 @@ const GalleryBook = () => {
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
         backgroundPosition: "center",
-        height: "800px",
+        height: "700px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -170,13 +170,20 @@ const GalleryBook = () => {
                 </Grid>
 
                 {/* Image */}
-                <Grid item xs={12} md={6}>
+                <Grid item xs={12} md={6}
+                  sx={{
+                    display: "flex", // Kích hoạt Flexbox
+                    justifyContent: "center", // Căn giữa theo chiều ngang
+                    alignItems: "center", // Căn giữa theo chiều dọc
+                  }}
+                >
                   <Box
                     component="img"
                     src={slide.image}
                     alt={slide.title}
                     sx={{
-                      maxWidth: "65%",
+                      // maxWidth: "65%",
+                      maxHeight: "600px",
                       borderRadius: "8px",
                       objectFit: "contain",
                     }}

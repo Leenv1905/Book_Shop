@@ -29,28 +29,40 @@ const ProductSection = () => {
         // Tạo các nhóm
         const newGroups = [
           {
-            title: "Featured",
+            title: "Vietnamese",
             products: mappedProducts
               .filter((product) => product.language === "Tiếng Việt")
               .slice(0, 3), // Lấy 3 sản phẩm
           },
+          // {
+          //   title: "Latest items",
+          //   products: mappedProducts
+          //     .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
+          //     .slice(0, 3), // Lấy 3 sản phẩm mới nhất
+          // },
           {
-            title: "Latest items",
+            title: "Russian",
             products: mappedProducts
-              .sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded))
-              .slice(0, 3), // Lấy 3 sản phẩm mới nhất
+              .filter((product) => product.language === "Tiếng Nga")
+              .slice(0, 3), // Lấy 3 sản phẩm
           },
           {
-            title: "Best reviewed",
+            title: "French",
             products: mappedProducts
               .sort((a, b) => b.rating - a.rating)
               .slice(0, 3), // Lấy 3 sản phẩm rating cao (giả lập)
           },
+          // {
+          //   title: "On sale",
+          //   products: mappedProducts
+          //     .filter((product) => product.originalPrice)
+          //     .slice(0, 3), // Lấy 3 sản phẩm có salePrice
+          // },
           {
-            title: "On sale",
+            title: "English",
             products: mappedProducts
-              .filter((product) => product.originalPrice)
-              .slice(0, 3), // Lấy 3 sản phẩm có salePrice
+              .filter((product) => product.language === "Tiếng Anh")
+              .slice(0, 3), // Lấy 3 sản phẩm
           },
         ];
 

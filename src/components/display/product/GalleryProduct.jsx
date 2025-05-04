@@ -91,7 +91,7 @@ const GalleryProduct = ({ images }) => {
       </Box>
 
       {/* Ảnh lớn (bên phải) */}
-      <Box sx={{ width: "80%" }}>
+      <Box sx={{ width: "80%"}}>
         <Slider 
           asNavFor={nav2} 
           ref={slider1} 
@@ -99,13 +99,25 @@ const GalleryProduct = ({ images }) => {
           fade={true}
         >
           {images.map((img, index) => (
-            <Box key={index}>
+            <Box key={index}
+              sx={{
+                padding: "5px",
+                cursor: "pointer",
+                marginTop: "5px",
+                ml: {
+                  xs: "5px", // Giao diện nhỏ
+                  sm: "10px", // Giao diện vừa
+                  md: "20px", // Giao diện lớn
+                },
+              }}>
               <img 
                 src={img} 
                 alt={`product-${index}`} 
                 style={{
-                  width: "100%",
-                  maxWidth: "400px",
+                  // width: "100%",
+                  // marginLeft: "20px",
+                  maxWidth: "700px",
+                  maxHeight: "900px",
                   borderRadius: "8px"
                 }} 
               />
