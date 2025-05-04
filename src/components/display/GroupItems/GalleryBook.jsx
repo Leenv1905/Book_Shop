@@ -428,3 +428,113 @@ export default GalleryBook;
 
 // export default GalleryBook;
 
+
+
+
+// <Box
+//   id="billboard"
+//   sx={{
+//     position: "relative",
+//     py: { xs: 15, sm: 10, md: 5 },
+//     marginBottom: 5,
+//     backgroundColor: "#f9f9f9",
+//     backgroundImage: "url('/demo/images/banner-image-bg.jpg')",
+//     backgroundSize: "contain",
+//     backgroundRepeat: "no-repeat",
+//     backgroundPosition: "top center",
+//     minHeight: "800px",
+//     display: "flex",
+//     justifyContent: "center",
+//     alignItems: "center",
+//   }}
+// >
+//   <Box sx={{ width: "80%", mx: "auto" }}>
+//     <Slider
+//       {...settings}
+//       sx={{
+//         "& .slick-slide": {
+//           padding: 0,
+//           margin: 0,
+//         },
+//       }}
+//     >
+//       {slides.map((slide, index) => (
+//         <Box key={index}>
+//           <Grid
+//             container
+//             alignItems="center"
+//             justifyContent="center"
+//             spacing={2}
+//             sx={{
+//               flexDirection: { xs: "column-reverse", md: "row" },
+//               height: "100%",
+//               justifyContent: "center",
+//               alignItems: "center",
+//             }}
+//           >
+//             {/* Text Content */}
+//             <Grid
+//               item
+//               xs={12}
+//               md={5}
+//               sx={{
+//                 textAlign: { xs: "center", md: "left" },
+//               }}
+//             >
+//               <Box>
+//                 <Typography variant="h2" sx={{ fontSize: "4rem", mb: 2 }}>
+//                   {truncateText(slide.title, 30)}
+//                 </Typography>
+//                 <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+//                   {truncateText(slide.description, 50)}
+//                 </Typography>
+//                 <Button
+//                   variant="contained"
+//                   component={Link}
+//                   to={`/productdetail/${slide.id}`}
+//                   size="large"
+//                   sx={{
+//                     backgroundColor: "#F86D72",
+//                     "&:hover": { backgroundColor: "black" },
+//                     borderRadius: "30px",
+//                     px: 4,
+//                     py: 2,
+//                   }}
+//                 >
+//                   {slide.buttonText}
+//                 </Button>
+//               </Box>
+//             </Grid>
+
+//             {/* Image */}
+//             <Grid
+//               item
+//               xs={12}
+//               md={6}
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "center",
+//                 alignItems: "center",
+//                 maxHeight: "500px",
+//                 overflow: "hidden",
+//               }}
+//             >
+//               <Box
+//                 component="img"
+//                 src={slide.image}
+//                 alt={slide.title}
+//                 sx={{
+//                   maxWidth: { xs: "90%", md: "65%" },
+//                   maxHeight: "100%",
+//                   borderRadius: "8px",
+//                   objectFit: "contain",
+//                 }}
+//               />
+//             </Grid>
+//           </Grid>
+//         </Box>
+//       ))}
+//     </Slider>
+//   </Box>
+// </Box>
+
