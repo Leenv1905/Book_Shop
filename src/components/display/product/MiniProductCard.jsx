@@ -7,8 +7,13 @@ const MiniProductCard = ({ image, title, author, rating, price, originalPrice, i
   // Tạo object product để truyền vào CardActions
   const navigate = useNavigate();
 
-  const handleNavigate = () => {
-    navigate(`/productdetail`);
+  const handleNavigate = () => { // Chuyển hướng đến URL động với id
+    if (id) {
+      navigate(`/productdetail/${id}`);
+    } else {
+      console.warn("Product ID is missing");
+      navigate('/productdetail'); // Hoặc xử lý lỗi khác
+    }
   };
 
   const product = {

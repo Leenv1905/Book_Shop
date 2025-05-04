@@ -6,7 +6,7 @@ import PaginationComponent from '../free/PaginationComponent';
 const ProductList = ({ filters }) => {
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(0);
-  const [size] = useState(8); // Số sản phẩm mỗi trang
+  const [size] = useState(12); // Số sản phẩm mỗi trang
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
