@@ -216,11 +216,11 @@ const ProductDetail = () => {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="h4" color="#F86D72">
-              {product.price.toLocaleString('vi-VN')} VNĐ
+              {product.price.toLocaleString('vi-VN')} $
             </Typography>
             {product.oldPrice && (
               <Typography variant="h4" component="del" sx={{ color: 'gray' }}>
-                {product.oldPrice.toLocaleString('vi-VN')} VNĐ
+                {product.oldPrice.toLocaleString('vi-VN')} $
               </Typography>
             )}
           </Box>
