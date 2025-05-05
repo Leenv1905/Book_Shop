@@ -17,7 +17,7 @@ function LayoutHome() {
     <>
       <Header />
       {/* ĐANG GỌI TRONG APP.JS */}
-    
+      <Toolbar/>
 
       <main style={{ flexGrow: 1 }}>
         <Outlet />
